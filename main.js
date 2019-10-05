@@ -4,7 +4,7 @@ import Raycaster from "./Raycaster.js";
 import { GetRandomIntFromRange } from "./helpers.js";
 
 var canvas_width = 800;
-var canvas_height = 800;
+var canvas_height = 500;
 
 // convention: underscore => in place methods
 

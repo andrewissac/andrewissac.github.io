@@ -37,12 +37,26 @@
   cursor: pointer;
 }
             </style>
+            <style>
+              #slidersContainer {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+#rayCountSlidercontainer {
+  width: 25%;
+}
+#wallCountSlidercontainer {
+  width: 25%;
+}
+            </style>
     </head>
     <body>
-        <div id="container">
+        <div id="canvasContainer">
             <canvas id="myCanvas" style="background-color: black"></canvas>
         </div>
-        <div class="rayCountSlidercontainer">
+        <div class="slidersContainer">
+          <div class="rayCountSlidercontainer">
             <input type="range" min="1" max="600" class="slider" id="rayCountSlider"></input>
             <p style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">Rays: <span id="rayCountValue"></span></p>
         </div>
@@ -50,6 +64,7 @@
           <input type="range" min="1" max="20" class="slider" id="wallCountSlider"></input>
           <p style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">Walls: <span id="wallCountValue"></span></p>
       </div>
+        </div>
         <script type="module" src="main.js"></script>
     </body>
 </html>
