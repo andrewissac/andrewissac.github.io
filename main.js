@@ -107,6 +107,7 @@ var pointerOnCanvas = false;
 function SetPointerOnCanvas(myBool){
   if (pointerOnCanvas === !myBool){
     pointerOnCanvas = myBool;
+    console.log(pointerOnCanvas);
   }
 }
 
@@ -134,18 +135,10 @@ if (canvas.PointerEvent){
 });
 
 canvas.addEventListener('mouseenter',
-  function(){
-    if(pointerOnCanvas === false) { 
-      pointerOnCanvas = true;
-    }
-});
+  function(event){ SetPointerOnCanvas(true); });
 
 canvas.addEventListener('mouseleave',
-function(event){
-  if(pointerOnCanvas === true) { 
-    pointerOnCanvas = false;
-  }
-});
+function(event){ SetPointerOnCanvas(false); });
 }
 
 
