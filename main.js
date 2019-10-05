@@ -159,10 +159,6 @@ function GetNewRandomLines(){
 var xoff = 0;
 var yoff = 500;
 function draw(){
-  if(tempx < 0 || tempx > canvas_width || tempy < 0 || tempy > canvas_height){
-    rayCaster.position.x = Math.floor(canvas_width / 2);
-    rayCaster.position.y = Math.floor(canvas_height / 2);
-  }
   if(pointerOnCanvas === false){
     // if mouse leaves => set it back to mid
     rayCaster.position.x = Math.floor(canvas_width / 2);
