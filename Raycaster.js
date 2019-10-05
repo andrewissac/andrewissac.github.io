@@ -83,8 +83,11 @@ export default class Raycaster{
                 console.log("undef intersection point number: " + i); 
                 console.log(intersectionPoints[i]);
             }
-            const newDirection = Vector2D.GetVectorBetween(this.position, intersectionPoints[i]);
-            this.rays[i].direction = new Vector2D(newDirection.x, newDirection.y);
+            else{
+                const newDirection = Vector2D.GetVectorBetween(this.position, intersectionPoints[i]);
+                this.rays[i].direction = new Vector2D(newDirection.x, newDirection.y);
+            }
+
         }
     }
 }
