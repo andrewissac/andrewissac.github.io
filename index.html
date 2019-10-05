@@ -9,7 +9,7 @@
             <style>
             .slider {
   -webkit-appearance: none;
-  width: 20%;
+  width: 100%;
   height: 15px;
   border-radius: 5px;  
   background: #d3d3d3;
@@ -43,6 +43,9 @@
   width: 100%;
   display: flex;
 }
+#space{
+  width: 10%;
+}
 #rayCountSlidercontainer {
   width: 25%;
 }
@@ -55,12 +58,15 @@
         <div id="canvasContainer">
             <canvas id="myCanvas" style="background-color: black"></canvas>
         </div>
-        <div class="slidersContainer">
-          <div class="rayCountSlidercontainer">
+        <div id="slidersContainer">
+          <div class="rayCountSlidercontainer" id="rayCountSlidercontainer">
             <input type="range" min="1" max="600" class="slider" id="rayCountSlider"></input>
             <p style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">Rays: <span id="rayCountValue"></span></p>
         </div>
-        <div class="wallCountSlidercontainer">
+        <div id="space">
+
+        </div>
+        <div id="wallCountSlidercontainer">
           <input type="range" min="1" max="20" class="slider" id="wallCountSlider"></input>
           <p style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">Walls: <span id="wallCountValue"></span></p>
       </div>
