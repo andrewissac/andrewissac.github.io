@@ -123,14 +123,14 @@ if (canvas.PointerEvent){
   // handle pointer move scenario
   canvas.addEventListener('pointermove', 
   function(event){
-    rayCaster.position.x = event.x - 8;
-    rayCaster.position.y = event.y - 8;
+    rayCaster.position.x = event.x;
+    rayCaster.position.y = event.y;
   });
 } else{
   canvas.addEventListener('mousemove', 
   function(event){
-    rayCaster.position.x = event.x - 8;
-    rayCaster.position.y = event.y - 8;
+    rayCaster.position.x = event.x;
+    rayCaster.position.y = event.y;
 });
 
 canvas.addEventListener('mouseenter',
