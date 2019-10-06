@@ -12,6 +12,9 @@ var walls = [];
 const canvasWalls = Line2D.GetWallLines2D(canvas_width, canvas_height);
 var initialRaycasterPosition = new Vector2D(Math.floor(canvas_width/2), Math.floor(canvas_height/2));
 var rayCaster = new Raycaster(initialRaycasterPosition, raycount);
+// automatic wall creation after 5 seconds
+window.setInterval(GetNewRandomLines, 5000);
+GetAndSetRandomLinesAndWalls();
 // #endregion
 
 var canvas = document.getElementById("myCanvas");
@@ -44,9 +47,12 @@ function GetAndSetRandomLinesAndWalls(){
 function ClearRandomLinesAndWalls(){
   while(walls.length > 0) { walls.pop(); }
 }
-// #endregion
 
-GetAndSetRandomLinesAndWalls();
+function GetNewRandomLines(){
+  ClearRandomLinesAndWalls();
+  GetAndSetRandomLinesAndWalls();
+}
+// #endregion
 
 // #region RayCount slider
 var rayCountSlider = document.getElementById("rayCountSlider");
@@ -78,18 +84,18 @@ function drawPoint(point){
   ctx.restore();
 }
 
-function drawRandomLines(randomLines){
+function drawLines(lines){
   ctx.beginPath();
   ctx.save();
   ctx.strokeStyle = "rgba(255, 255, 255, 1.0)";
-  for(let i = 0; i < randomLines.length; i++){
+  for(let i = 0; i < lines.length; i++){
     //drawLine(randomLines[i]);
-    randomLines[i].Draw(ctx);
+    lines[i].Draw(ctx);
   }
   ctx.restore();
 }
 
-function drawRaycasterRays(Raycaster){
+function drawRays(Raycaster){
   ctx.save();
   ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
   //ctx.beginPath(); // somehow causes flickering INSIDE the loop, disappears outside
@@ -98,6 +104,8 @@ function drawRaycasterRays(Raycaster){
 }
 // #endregion
 
+
+// #region Handle mouse events
 var pointerOnCanvas = false;
 
 function SetPointerOnCanvas(myBool){
@@ -106,94 +114,60 @@ function SetPointerOnCanvas(myBool){
   }
 }
 
-if (canvas.PointerEvent){
-  // // handle all entering pointer scenarios
-  // canvas.addEventListener('pointerover', SetPointerOnCanvas(true));
-  // canvas.addEventListener('pointerenter', SetPointerOnCanvas(true));
-  // canvas.addEventListener('pointerdown', SetPointerOnCanvas(true));
-  // // handle all leaving pointer scenarios
-  // canvas.addEventListener('pointerup', SetPointerOnCanvas(false));
-  // canvas.addEventListener('pointerleave', SetPointerOnCanvas(false));
-  // canvas.addEventListener('pointerout', SetPointerOnCanvas(false));
-  // canvas.addEventListener('pointercancel', SetPointerOnCanvas(false));
-    // handle all entering pointer scenarios
-    canvas.addEventListener('pointerover', 
-    function(event){
-      SetPointerOnCanvas(true);
-      console.log(event.type);
-    });
-    canvas.addEventListener('pointerenter',  
-    function(event){
-      SetPointerOnCanvas(true);
-      console.log(event.type);
-    });
-    canvas.addEventListener('pointerdown',  
-    function(event){
-      SetPointerOnCanvas(true);
-      console.log(event.type);
-    });
-    // handle all leaving pointer scenarios
-    canvas.addEventListener('pointerup',  
-    function(event){
-      SetPointerOnCanvas(false);
-      console.log(event.type);
-    });
-    canvas.addEventListener('pointerleave',  
-    function(event){
-      SetPointerOnCanvas(false);
-      console.log(event.type);
-    });
-    canvas.addEventListener('pointerout',  
-    function(event){
-      SetPointerOnCanvas(false);
-      console.log(event.type);
-    });
-    canvas.addEventListener('pointercancel',  
-    function(event){
-      SetPointerOnCanvas(false);
-      console.log(event.type);
-    });
-  // handle pointer move scenario
-  canvas.addEventListener('pointermove', 
-  function(event){
-    rayCaster.position.x = event.x;
-    rayCaster.position.y = event.y;
-    console.log(event.type);
-  });
-} else{
-  canvas.addEventListener('mousemove', 
-  function(event){
-    rayCaster.position.x = event.x;
-    rayCaster.position.y = event.y;
+canvas.addEventListener('touchstart',  
+function(event){
+  SetPointerOnCanvas(true);
+  event.preventDefault();
+});
+
+canvas.addEventListener('touchend',  
+function(event){
+  SetPointerOnCanvas(false);
+  event.preventDefault();
+});
+
+canvas.addEventListener('touchmove', 
+function(event){
+  let touchobj = event.changedTouches[0];
+  rayCaster.position.x = touchobj.clientX;
+  rayCaster.position.y = touchobj.clientY;
+  event.preventDefault();
 });
 
 canvas.addEventListener('mouseenter',
-  function(event){ SetPointerOnCanvas(true); });
+function(event){
+  SetPointerOnCanvas(true);
+});
 
-canvas.addEventListener('mouseleave',
-function(event){ SetPointerOnCanvas(false); });
-}
+canvas.addEventListener('mouseleave',  
+function(event){
+  SetPointerOnCanvas(false);
+});
 
-
-window.setInterval(GetNewRandomLines, 5000);
-
-function GetNewRandomLines(){
-  ClearRandomLinesAndWalls();
-  GetAndSetRandomLinesAndWalls();
-}
+canvas.addEventListener('mousemove', 
+function(event){
+    rayCaster.position.x = event.x;
+    rayCaster.position.y = event.y;
+});
+//#endregion
 
 var xoff = 0;
 var yoff = 500;
+
 function draw(){
   if(pointerOnCanvas === false){
     // if mouse leaves => set it back to mid
     rayCaster.position.x = Math.floor(canvas_width / 2);
     rayCaster.position.y = Math.floor(canvas_height / 2);
 
+    // perlin noise creates random but smooth movement
     let tempx = rayCaster.position.x + noise.perlin2(xoff,yoff)*200;
     let tempy = rayCaster.position.y + noise.perlin2(yoff,xoff)*200;
+    // change variables to get new point on next draw
 	  xoff += 0.002;
-	  yoff += 0.002;
+    yoff += 0.002;
+    
+    // out of bounds checks
     if(tempx < 0 || tempx > canvas_width || tempy < 0 || tempy > canvas_height){
       rayCaster.position.x = Math.floor(canvas_width / 2);
       rayCaster.position.y = Math.floor(canvas_height / 2);
@@ -203,9 +177,12 @@ function draw(){
       rayCaster.position.y = tempy;
     }
   }
+  //clear the whole canvas
   ctx.clearRect(0, 0, canvas_width, canvas_height);
 
-  drawRandomLines(walls);
+  drawLines(walls);
+
+  // Draw white dot at the center of the rays
   ctx.save();
   ctx.beginPath();
   ctx.fillStyle = "#FFFFFF";
@@ -223,11 +200,11 @@ function draw(){
   // ctx.fillStyle = gradient;
   // ctx.fill();
 
-  // update raycaster position(setter updates rays too)
+  // update raycaster position
   rayCaster.UpdateRays();
   const intersectionPoints = rayCaster.FindAllClosestIntersectionPoints(walls);
   rayCaster.CutRaysAtClosestIntersectionPoint(intersectionPoints);
-  drawRaycasterRays(rayCaster);
+  drawRays(rayCaster);
   drawPoints(intersectionPoints);
 
 
