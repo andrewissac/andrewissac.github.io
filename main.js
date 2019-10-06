@@ -107,15 +107,52 @@ function SetPointerOnCanvas(myBool){
 }
 
 if (canvas.PointerEvent){
-  // handle all entering pointer scenarios
-  canvas.addEventListener('pointerover', SetPointerOnCanvas(true));
-  canvas.addEventListener('pointerenter', SetPointerOnCanvas(true));
-  canvas.addEventListener('pointerdown', SetPointerOnCanvas(true));
-  // handle all leaving pointer scenarios
-  canvas.addEventListener('pointerup', SetPointerOnCanvas(false));
-  canvas.addEventListener('pointerleave', SetPointerOnCanvas(false));
-  canvas.addEventListener('pointerout', SetPointerOnCanvas(false));
-  canvas.addEventListener('pointercancel', SetPointerOnCanvas(false));
+  // // handle all entering pointer scenarios
+  // canvas.addEventListener('pointerover', SetPointerOnCanvas(true));
+  // canvas.addEventListener('pointerenter', SetPointerOnCanvas(true));
+  // canvas.addEventListener('pointerdown', SetPointerOnCanvas(true));
+  // // handle all leaving pointer scenarios
+  // canvas.addEventListener('pointerup', SetPointerOnCanvas(false));
+  // canvas.addEventListener('pointerleave', SetPointerOnCanvas(false));
+  // canvas.addEventListener('pointerout', SetPointerOnCanvas(false));
+  // canvas.addEventListener('pointercancel', SetPointerOnCanvas(false));
+    // handle all entering pointer scenarios
+    canvas.addEventListener('pointerover', 
+    function(event){
+      SetPointerOnCanvas(true);
+      console.log(event.type);
+    });
+    canvas.addEventListener('pointerenter',  
+    function(event){
+      SetPointerOnCanvas(true);
+      console.log(event.type);
+    });
+    canvas.addEventListener('pointerdown',  
+    function(event){
+      SetPointerOnCanvas(true);
+      console.log(event.type);
+    });
+    // handle all leaving pointer scenarios
+    canvas.addEventListener('pointerup',  
+    function(event){
+      SetPointerOnCanvas(false);
+      console.log(event.type);
+    });
+    canvas.addEventListener('pointerleave',  
+    function(event){
+      SetPointerOnCanvas(false);
+      console.log(event.type);
+    });
+    canvas.addEventListener('pointerout',  
+    function(event){
+      SetPointerOnCanvas(false);
+      console.log(event.type);
+    });
+    canvas.addEventListener('pointercancel',  
+    function(event){
+      SetPointerOnCanvas(false);
+      console.log(event.type);
+    });
   // handle pointer move scenario
   canvas.addEventListener('pointermove', 
   function(event){
@@ -195,8 +232,6 @@ function draw(){
 
   window.requestAnimationFrame(draw);
 }
-
-
 
 window.requestAnimationFrame(draw);
 
