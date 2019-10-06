@@ -158,6 +158,7 @@ if (canvas.PointerEvent){
   function(event){
     rayCaster.position.x = event.x;
     rayCaster.position.y = event.y;
+    console.log(event.type);
   });
 } else{
   canvas.addEventListener('mousemove', 
