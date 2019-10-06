@@ -3,61 +3,65 @@ import Line2D from "./Line2D.js";
 import Raycaster from "./Raycaster.js";
 import { GetRandomIntFromRange } from "./helpers.js";
 
+// #region global variables
 var canvas_width = 800;
 var canvas_height = 500;
-
-// convention: underscore => in place methods
+var numberOfRandomWalls = 6;
+var raycount = 80;
+var walls = [];
+const canvasWalls = Line2D.GetWallLines2D(canvas_width, canvas_height);
+var initialRaycasterPosition = new Vector2D(Math.floor(canvas_width/2), Math.floor(canvas_height/2));
+var rayCaster = new Raycaster(initialRaycasterPosition, raycount);
+// #endregion
 
 var canvas = document.getElementById("myCanvas");
 canvas.width = canvas_width;
 canvas.height = canvas_height;
 var ctx = canvas.getContext('2d');
 
-
-var numberOfRandomLines = 6;
-var randomLines = [];
-const walls = Line2D.GetWallLines2D(canvas_width, canvas_height);
-
+// #region WallCount slider
 var wallCountSlider = document.getElementById("wallCountSlider");
-wallCountSlider.value = numberOfRandomLines;
+wallCountSlider.value = numberOfRandomWalls;
 var wallCountValue = document.getElementById("wallCountValue");
 wallCountValue.innerHTML = wallCountSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 wallCountSlider.oninput = function() {
   wallCountValue.innerHTML = this.value;
-  numberOfRandomLines = this.value;
+  numberOfRandomWalls = this.value;
   GetNewRandomLines();
 }
+// #endregion
 
+// #region method to get/set new RANDOM walls or clear them
 function GetAndSetRandomLinesAndWalls(){
-  randomLines = Line2D.GetRandomLines2D(numberOfRandomLines, 100,canvas_width-100, 100,canvas_height-100);
-  for(let wall of walls){
-    randomLines.push(wall);
+  walls = Line2D.GetRandomLines2D(numberOfRandomWalls, 100,canvas_width-100, 100,canvas_height-100);
+  for(let wall of canvasWalls){
+    walls.push(wall);
   }
 }
 
 function ClearRandomLinesAndWalls(){
-  while(randomLines.length > 0) { randomLines.pop(); }
+  while(walls.length > 0) { walls.pop(); }
 }
+// #endregion
 
 GetAndSetRandomLinesAndWalls();
 
-var raycount = 80;
+// #region RayCount slider
 var rayCountSlider = document.getElementById("rayCountSlider");
 rayCountSlider.value = raycount;
 var rayCountVal = document.getElementById("rayCountValue");
 rayCountVal.innerHTML = rayCountSlider.value; // Display the default slider value
-
-var initialRaycasterPosition = new Vector2D(Math.floor(canvas_width/2), Math.floor(canvas_height/2));
-var rayCaster = new Raycaster(initialRaycasterPosition, raycount);
 
 // Update the current slider value (each time you drag the slider handle)
 rayCountSlider.oninput = function() {
   rayCountVal.innerHTML = this.value;
   rayCaster.rayCount = this.value;
 }
+// #endregion
 
+// #region Draw functions
 function drawPoints(points){
   if(typeof(points) === "undefined") { return; }
   for(let i=0; i < points.length; i++){
@@ -68,17 +72,10 @@ function drawPoints(points){
 function drawPoint(point){
   if(typeof(point) === 'undefined' || point === null) { return; }
   ctx.save();
-  ctx.globalAlpha = 1.0;
   ctx.beginPath();
   ctx.fillStyle = "#FFFF00";
   ctx.fillRect(point.x, point.y, 1, 1);
   ctx.restore();
-}
-
-function drawLine(line){
-  ctx.moveTo(line.offset.x, line.offset.y);
-  ctx.lineTo(line.offset.x + line.direction.x, line.offset.y + line.direction.y);
-  ctx.stroke();
 }
 
 function drawRandomLines(randomLines){
@@ -86,28 +83,26 @@ function drawRandomLines(randomLines){
   ctx.save();
   ctx.strokeStyle = "rgba(255, 255, 255, 1.0)";
   for(let i = 0; i < randomLines.length; i++){
-    drawLine(randomLines[i]);
+    //drawLine(randomLines[i]);
+    randomLines[i].Draw(ctx);
   }
   ctx.restore();
 }
 
 function drawRaycasterRays(Raycaster){
   ctx.save();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-  ctx.beginPath(); // somehow causes flickering INSIDE the loop, disappears outside
-  for(let i = 0; i < Raycaster.rays.length; i++){
-    //ctx.beginPath();
-    drawLine(rayCaster.rays[i]);
-  }
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+  //ctx.beginPath(); // somehow causes flickering INSIDE the loop, disappears outside
+  Raycaster.Draw(ctx);
   ctx.restore();
 }
+// #endregion
 
 var pointerOnCanvas = false;
 
 function SetPointerOnCanvas(myBool){
   if (pointerOnCanvas === !myBool){
     pointerOnCanvas = myBool;
-    console.log(pointerOnCanvas);
   }
 }
 
@@ -172,7 +167,7 @@ function draw(){
   }
   ctx.clearRect(0, 0, canvas_width, canvas_height);
 
-  drawRandomLines(randomLines);
+  drawRandomLines(walls);
   ctx.save();
   ctx.beginPath();
   ctx.fillStyle = "#FFFFFF";
@@ -192,7 +187,7 @@ function draw(){
 
   // update raycaster position(setter updates rays too)
   rayCaster.UpdateRays();
-  const intersectionPoints = rayCaster.FindAllClosestIntersectionPoints(randomLines);
+  const intersectionPoints = rayCaster.FindAllClosestIntersectionPoints(walls);
   rayCaster.CutRaysAtClosestIntersectionPoint(intersectionPoints);
   drawRaycasterRays(rayCaster);
   drawPoints(intersectionPoints);
