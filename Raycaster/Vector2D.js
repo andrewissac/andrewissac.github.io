@@ -1,4 +1,4 @@
-import * as helpers from "/Utils/helpers.js";
+import * as helpers from "../Utils/helpers.js";
 
 export default class Vector2D{
     constructor(x, y){

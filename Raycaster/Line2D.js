@@ -1,11 +1,11 @@
-import Vector2D from "/Raycaster/Vector2D.js";
-import { epsilon } from "/Utils/helpers.js";
+import Vector2D from "./Vector2D.js";
+import { epsilon } from "../Utils/helpers.js";
 
 export default class Line2D{
     constructor(tempOffsetVec, tempDirectionVec){
         // objects are passed by REFERENCE in javascript (just as in C#)! => new Vector2D
         if(!tempOffsetVec instanceof Vector2D || !(tempDirectionVec instanceof Vector2D)){
-            console.log("Input parameter for Line is not a Vector!: " + typeof(tempDirectionVec));
+            console.log("Input parameter for Line is not a Vector2D!: " + typeof(tempDirectionVec));
             console.log(tempDirectionVec);
         }
         this._offset = new Vector2D(tempOffsetVec.x, tempOffsetVec.y);
