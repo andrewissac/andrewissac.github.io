@@ -92,6 +92,7 @@ var ctx = canvas.getContext('2d');
     ctx.beginPath();
     ctx.fillStyle = "#FFFF00";
     ctx.fillRect(point.x, point.y, 1, 1);
+    //ctx.closePath();
     ctx.restore();
   }
 
@@ -102,24 +103,26 @@ var ctx = canvas.getContext('2d');
     ctx.arc(origin.x, origin.y, radius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
+    //ctx.closePath();
     ctx.restore();
   }
 
   function drawLines(lines){
-    ctx.beginPath();
     ctx.save();
     ctx.strokeStyle = "rgba(255, 255, 255, 1.0)";
+    ctx.lineWidth = 2;
     for(let i = 0; i < lines.length; i++){
-      //drawLine(randomLines[i]);
+      ctx.beginPath();
       lines[i].Draw(ctx);
     }
+    //ctx.closePath();
     ctx.restore();
   }
 
   function drawRays(Raycaster){
     ctx.save();
     ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-    //ctx.beginPath(); // somehow causes flickering INSIDE the loop, disappears outside
+    ctx.lineWidth = 2;
     Raycaster.Draw(ctx);
     ctx.restore();
   }
@@ -178,11 +181,11 @@ var ctx = canvas.getContext('2d');
       rayCaster.position.y = Math.floor(canvas_height / 2);
 
       // perlin noise creates random but smooth movement
-      let tempx = rayCaster.position.x + simplex.noise2D(simplexOffsetX, simplexOffsetY)*175;
-      let tempy = rayCaster.position.y + simplex.noise2D(simplexOffsetY, simplexOffsetX)*175;
+      let tempx = rayCaster.position.x + simplex.noise2D(simplexOffsetX, simplexOffsetY)*200;
+      let tempy = rayCaster.position.y + simplex.noise2D(simplexOffsetY, simplexOffsetX)*200;
       // change variables to get new point on next draw
-      simplexOffsetX += 0.001;
-      simplexOffsetY += 0.001;
+      simplexOffsetX += 0.0015;
+      simplexOffsetY += 0.0015;
       
       // out of bounds checks
       if(tempx < 0 || tempx > canvas_width || tempy < 0 || tempy > canvas_height){

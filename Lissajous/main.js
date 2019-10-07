@@ -13,6 +13,7 @@ canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 var ctx = canvas.getContext('2d');
 
+
 // #region drawing functions
 function drawPoint(point){
     if(typeof(point) === 'undefined' || point === null) { return; }
@@ -45,20 +46,27 @@ function drawPoint(point){
 // #endregion
 
 const radius = Math.floor(canvasWidth/2);
-let alpha = 0;
+let alphaDegree = 0;
 let smallCirclePos = new Vector2D(0, 0);
+const whiteLineStrokeStyle = "rgba(255, 255, 255, 1.0)";
 // #region animation function
     function draw(){
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-        const x = canvasMiddle.x + radius * helpers.Cos(alpha, false);
-        const y = canvasMiddle.y + radius * helpers.Sin(alpha+90, false);
-        smallCirclePos.UpdatePosition(x, y);
-
-        drawCircle(canvasMiddle, radius, "rgba(255, 255, 255, 1.0)");
-        drawFilledCircle(smallCirclePos, 5, "rgba(255, 110, 180, 1.0)", "rgba(255, 110, 180, 1.0)");
         
-        alpha++;
+        if((alphaDegree % 360) === 0){
+          alphaDegree = 0;
+          ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        }
+        //ctx.beginPath();
+        const x = canvasMiddle.x + radius * helpers.Cos(2*alphaDegree, false);
+        const y = canvasMiddle.y + radius * helpers.Sin(alphaDegree+90, false);
+        smallCirclePos.UpdatePosition(x, y);
+        
+        drawCircle(canvasMiddle, radius, whiteLineStrokeStyle);
+        drawFilledCircle(smallCirclePos, 5, "rgba(255, 110, 180, 1.0)", "rgba(255, 110, 180, 1.0)");
+        helpers.drawHorizontalLine(ctx, smallCirclePos.y, canvasWidth, whiteLineStrokeStyle);
+        helpers.drawVerticalLine(ctx, smallCirclePos.x, canvasHeight, whiteLineStrokeStyle);
+
+        alphaDegree++;
         window.requestAnimationFrame(draw);
     }
 // #endregion

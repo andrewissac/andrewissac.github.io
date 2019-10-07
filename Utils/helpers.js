@@ -38,5 +38,46 @@ export function Distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
 }
 
+// #region drawing functions
+export function drawHorizontalLine(context, posY, canvasWidth, rgbaStroke){
+    context.save();
+    context.beginPath();
+    context.strokeStyle = rgbaStroke;
+    context.moveTo(0, posY);
+    context.lineTo(canvasWidth, posY);
+    context.stroke();
+    context.restore();
+  }
+
+ export function drawVerticalLine(context, posX, canvasHeigth, rgbaStroke){
+    context.save();
+    context.beginPath();
+    context.strokeStyle = rgbaStroke;
+    context.moveTo(posX, 0);
+    context.lineTo(posX, canvasHeigth);
+    context.stroke();
+    context.restore();
+  }
+
+  export function drawCircle(context, origin, radius, rgbaStroke){
+    context.save();
+    context.beginPath();
+    context.strokeStyle = rgbaStroke;
+    context.arc(origin.x, origin.y, radius, 0, 2 * Math.PI);
+    context.stroke();
+    context.restore();
+  }
+
+  export function drawFilledCircle(context, origin, radius, rgbaStroke, rgbaFill){
+    context.save();
+    context.beginPath();
+    context.fillStyle = rgbaFill;
+    context.strokeStyle = rgbaStroke;
+    context.arc(origin.x, origin.y, radius, 0, 2 * Math.PI);
+    context.fill();
+    context.stroke();
+    context.restore();
+  }
+// #endregion
 
 
