@@ -31,6 +31,11 @@ export default class Vector2D{
         this.length = this.GetLength();
     }
 
+    UpdatePosition(x, y){
+        this.x = x;
+        this.y = y;
+        this.length = this.GetLength();
+    }
 
     Negative(){
         return new Vector2D(this.x * -1, this.y * -1);
