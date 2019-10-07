@@ -1,5 +1,5 @@
-import Vector2D from "./Vector2D.js";
-import { epsilon } from "./helpers.js";
+import Vector2D from "/Raycaster/Vector2D.js";
+import { epsilon } from "/Utils/helpers.js";
 
 export default class Line2D{
     constructor(tempOffsetVec, tempDirectionVec){

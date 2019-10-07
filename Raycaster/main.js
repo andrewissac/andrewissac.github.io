@@ -1,7 +1,7 @@
-import Vector2D from "./Vector2D.js";
-import Line2D from "./Line2D.js";
-import Raycaster from "./Raycaster.js";
-import { GetRandomIntFromRange } from "./helpers.js";
+import Vector2D from "/Raycaster/Vector2D.js";
+import Line2D from "/Raycaster/Line2D.js";
+import Raycaster from "/Raycaster/Raycaster.js";
+import "/Utils/simplexNoise.js";
 
 // #region global variables
 var canvas_width = 800;
@@ -12,6 +12,7 @@ var walls = [];
 const canvasWalls = Line2D.GetWallLines2D(canvas_width, canvas_height);
 var initialRaycasterPosition = new Vector2D(Math.floor(canvas_width/2), Math.floor(canvas_height/2));
 var rayCaster = new Raycaster(initialRaycasterPosition, raycount);
+var simplex = new SimplexNoise(Date.now());
 // automatic wall creation after 5 seconds
 window.setInterval(GetNewRandomLines, 5000);
 GetAndSetRandomLinesAndWalls();
@@ -161,11 +162,11 @@ function draw(){
     rayCaster.position.y = Math.floor(canvas_height / 2);
 
     // perlin noise creates random but smooth movement
-    let tempx = rayCaster.position.x + noise.perlin2(xoff,yoff)*200;
-    let tempy = rayCaster.position.y + noise.perlin2(yoff,xoff)*200;
+    let tempx = rayCaster.position.x + simplex.noise2D(xoff,yoff)*175;
+    let tempy = rayCaster.position.y + simplex.noise2D(yoff,xoff)*175;
     // change variables to get new point on next draw
-	  xoff += 0.002;
-    yoff += 0.002;
+	  xoff += 0.001;
+    yoff += 0.001;
     
     // out of bounds checks
     if(tempx < 0 || tempx > canvas_width || tempy < 0 || tempy > canvas_height){
