@@ -1,4 +1,4 @@
-import Vector2D from "./Vector2D.js";
+import Vector2D from "../Utils/Vector2D.js";
 import Line2D from "./Line2D.js";
 import Raycaster from "./Raycaster.js";
 import "../Utils/simplexNoise.js";

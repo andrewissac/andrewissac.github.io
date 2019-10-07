@@ -1,5 +1,5 @@
 import Line2D from "./Line2D.js";
-import Vector2D from "./Vector2D.js";
+import Vector2D from "../Utils/Vector2D.js";
 
 export default class Raycaster{
     constructor(tempPosition, tempRayCount){

@@ -1,14 +1,16 @@
-
+import Vector2D from "../Utils/Vector2D"
 
 // #region global variables
 var canvasHeight = 500;
 var canvasWidth = 500;
+var canvasMiddle = Math.floor(canvasHeight/2 + 0.5);
 // #endregion
 
 // Get canvas and context of canvas
 var canvas = document.getElementById("myCanvas");
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
+
 var ctx = canvas.getContext('2d');
 
 // #region drawing functions
@@ -45,6 +47,7 @@ function drawPoint(point){
 // #region animation function
     function draw(){
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        this.drawCircle()
         window.requestAnimationFrame(draw);
     }
 // #endregion

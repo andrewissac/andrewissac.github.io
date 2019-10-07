@@ -1,4 +1,4 @@
-import Vector2D from "./Vector2D.js";
+import Vector2D from "../Utils/Vector2D.js";
 import { epsilon } from "../Utils/helpers.js";
 
 export default class Line2D{
