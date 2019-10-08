@@ -1,6 +1,7 @@
 import Vector2D from "../Utils/Vector2D.js"
 import * as helpers from "../Utils/helpers.js"
 import Lissajous from "./LissajousFigure.js";
+import LissajousTable from "./LissajousTable.js";
 
 // #region global variables
 var canvasHeight = 500;
@@ -61,14 +62,19 @@ bgCtx.lineWidth = 2;
 fgCtx.strokeStyle = whiteLineStrokeStyle;
 fgCtx.lineWidth = 2;
 var i = 0;
-const tempFigPos = new Vector2D(0,0);
-const Ax = Math.floor(canvasWidth/2);
-const Ay = Math.floor(canvasHeight/2);
-let lissajous = new Lissajous(tempFigPos, Ax, Ay, 1, 1, 0, Math.PI/2);
-let lissajous2 = new Lissajous(tempFigPos, Ax, Ay, 1, 2, 0, Math.PI/2);
-let lissajous3 = new Lissajous(tempFigPos, Ax, Ay, 1, 1, 0, Math.PI/4);
-let lissajous5 = new Lissajous(tempFigPos, Ax, Ay, -1, 1, 0, Math.PI/4);
-let lissajous4 = new Lissajous(tempFigPos, Ax, Ay, 1, 2, 0, Math.PI/4);
+var rows = 2;
+var cols = 2;
+
+var lissajousTable = new LissajousTable(rows, cols, canvasWidth, canvasHeight, 5, 5);
+console.log(lissajousTable);
+// const tempFigPos = new Vector2D(0,0);
+// const Ax = Math.floor(canvasWidth/2);
+// const Ay = Math.floor(canvasHeight/2);
+// let lissajous = new Lissajous(tempFigPos, Ax, Ay, 1, 1, 0, Math.PI/2);
+// let lissajous2 = new Lissajous(tempFigPos, Ax, Ay, 1, 2, 0, Math.PI/2);
+// let lissajous3 = new Lissajous(tempFigPos, Ax, Ay, 1, 1, 0, Math.PI/4);
+// let lissajous5 = new Lissajous(tempFigPos, Ax, Ay, -1, 1, 0, Math.PI/4);
+// let lissajous4 = new Lissajous(tempFigPos, Ax, Ay, 1, 2, 0, Math.PI/4);
 
 // #region animation function
     function draw(){
@@ -77,12 +83,16 @@ let lissajous4 = new Lissajous(tempFigPos, Ax, Ay, 1, 2, 0, Math.PI/4);
         i = 0;
         bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
       }
-      lissajous.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-      lissajous2.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-      lissajous3.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-      lissajous4.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-      lissajous5.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-
+      // lissajous.Draw(bgCtx, fgCtx, t[i], t[i+1]);
+      // lissajous2.Draw(bgCtx, fgCtx, t[i], t[i+1]);
+      // lissajous3.Draw(bgCtx, fgCtx, t[i], t[i+1]);
+      // lissajous4.Draw(bgCtx, fgCtx, t[i], t[i+1]);
+      // lissajous5.Draw(bgCtx, fgCtx, t[i], t[i+1]);
+      for(let row = 0; row < rows; row++){
+        for(let col = 0; col < cols; col++){
+          lissajousTable[row][col].Draw(bgCtx, fgCtx, t[i], t[i+1]);
+        }
+      }
       
       i++;
       window.requestAnimationFrame(draw);

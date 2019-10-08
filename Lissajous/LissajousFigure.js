@@ -133,9 +133,14 @@ export default class Lissajous{
         fgContext.fill();
 
         fgContext.strokeStyle = whiteLinestrokeStyle;
-        helpers.drawHorizontalLine(fgContext, newPos.y, fgContext.canvas.clientWidth, whiteLinestrokeStyle);
-        helpers.drawVerticalLine(fgContext, newPos.x, fgContext.canvas.clientHeight, whiteLinestrokeStyle);
-        fgContext.stroke();
+        if(this.showHorizontalLine){
+            helpers.drawHorizontalLine(fgContext, newPos.y, fgContext.canvas.clientWidth, whiteLinestrokeStyle);
+            fgContext.stroke();
+        }
+        else if(this.showVerticalLine){
+            helpers.drawVerticalLine(fgContext, newPos.x, fgContext.canvas.clientHeight, whiteLinestrokeStyle);
+            fgContext.stroke();
+        }
     }
 
 }
