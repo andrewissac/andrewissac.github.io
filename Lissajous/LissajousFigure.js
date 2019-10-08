@@ -118,13 +118,24 @@ export default class Lissajous{
             this.omega1, this.omega2, this.phaseshift1, this.phaseshift2);
     }
 
-    Draw(context, tOld, t){
+    Draw(bgContext, fgContext, tOld, t){
         const oldPos = this._coordinateOrigin.Add(this.CalcXY(tOld));
         const newPos = this._coordinateOrigin.Add(this.CalcXY(t));
-        context.beginPath();
-        context.moveTo(oldPos.x, oldPos.y);
-        context.lineTo(newPos.x, newPos.y);
-        context.stroke();
+        bgContext.beginPath();
+        bgContext.moveTo(oldPos.x, oldPos.y);
+        bgContext.lineTo(newPos.x, newPos.y);
+        bgContext.stroke();
+
+        fgContext.beginPath();
+        fgContext.fillStyle = "rgba(255, 192, 203, 1.0)";
+        const whiteLinestrokeStyle = "rgba(255, 255, 255, 0.3)";
+        fgContext.arc(newPos.x, newPos.y, 6, 0, 2 * Math.PI);
+        fgContext.fill();
+
+        fgContext.strokeStyle = whiteLinestrokeStyle;
+        helpers.drawHorizontalLine(fgContext, newPos.y, fgContext.canvas.clientWidth, whiteLinestrokeStyle);
+        helpers.drawVerticalLine(fgContext, newPos.x, fgContext.canvas.clientHeight, whiteLinestrokeStyle);
+        fgContext.stroke();
     }
 
 }
