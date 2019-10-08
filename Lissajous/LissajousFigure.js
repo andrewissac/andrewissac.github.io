@@ -3,34 +3,43 @@ import * as helpers from "../Utils/helpers.js";
 
 export default class Lissajous{
     constructor(
-        positionVec, 
+        figurePosition, 
         Ax, 
         Ay, 
         omega1, 
         omega2, 
-        phaseshift,
+        phaseshift1,
+        phaseshift2,
         showHorizontalLine = false,
         showVerticalLine = false){
-        if(!(positionVec instanceof Vector2D)) { 
+        if(!(figurePosition instanceof Vector2D)) { 
             console.log("position vector has wrong type.");
             return;
         }
-        this._positionVec = positionVec;
-        this._Ax = Ax;
-        this._Ay = Ay;
+        this._figurePosition = figurePosition;
+        this._Ax = Ax; // half the size of the figuresize
+        this._Ay = Ay; // half the size of the figuresize
         this._omega1 = omega1;
         this._omega2 = omega2;
-        this._phaseshift = phaseshift;
+        this._phaseshift1 = phaseshift1;
+        this._phaseshift2 = phaseshift2;
         this._showHorizontalLine = showHorizontalLine;
         this._showVerticalLine = showVerticalLine;
+        this._coordinateOrigin = new Vector2D(
+            Math.floor(figurePosition.x + Ax),
+            Math.floor(figurePosition.y + Ay));
     }
 
-    get positionVec(){
-        return this._positionVec;
+    get figurePosition(){
+        return this._figurePosition;
     }
 
-    set positionVec(newPosVec){
-        this._positionVec.UpdatePositon(newPosVec.x, newPosVec.y);
+    set figurePosition(newPosVec){
+        this._figurePosition.UpdatePositon(newPosVec.x, newPosVec.y);
+        this._coordinateOrigin.UpdatePosition(
+            Math.floor(this.newPosVec.x + this._Ax / 2),
+            Math.floor(this.newPosVec.y + this._Ay / 2)
+            );
     }
 
     get Ax(){
@@ -65,12 +74,20 @@ export default class Lissajous{
         this._omega2 = newOmega2;
     }
 
-    get phaseshift(){
-        return this._phaseshift;
+    get phaseshift1(){
+        return this._phaseshift1;
     }
 
-    set phaseshift(newPhaseshift){
-        this._phaseshift = newPhaseshift;
+    set phaseshift1(newPhaseshift){
+        this._phaseshift1 = newPhaseshift;
+    }
+
+    get phaseshift2(){
+        return this._phaseshift2;
+    }
+
+    set phaseshift2(newPhaseshift){
+        this._phaseshift2 = newPhaseshift;
     }
 
     get showHorizontalLine(){
@@ -89,21 +106,25 @@ export default class Lissajous{
         this._showVerticalLine = val;
     }
 
-    Update(positionVec, Ax, Ay, omega1, omega2, phaseshift){
-        this._positionVec = positionVec;
-        this.Ax = Ax;
-        this.Ay = Ay;
-        this.omega1 = omega1;
-        this.omega2 = omega2;
-        this.phaseshift = phaseshift;
+    CalcXY(t){
+        return new Vector2D(
+            this.Ax * Math.sin(this.omega1 * t + this.phaseshift1), 
+            this.Ay * Math.sin(this.omega2 * t + this.phaseshift2));
     }
 
     Clone(){
-        return new Lissajous(this.positionVec, this.Ax, this.Ay, this.omega1, this.omega2, this.phaseshift);
+        return new Lissajous(
+            this.figurePosition, this.Ax, this.Ay, 
+            this.omega1, this.omega2, this.phaseshift1, this.phaseshift2);
     }
 
-    Draw(context, t){
-
+    Draw(context, tOld, t){
+        const oldPos = this._coordinateOrigin.Add(this.CalcXY(tOld));
+        const newPos = this._coordinateOrigin.Add(this.CalcXY(t));
+        context.beginPath();
+        context.moveTo(oldPos.x, oldPos.y);
+        context.lineTo(newPos.x, newPos.y);
+        context.stroke();
     }
 
 }

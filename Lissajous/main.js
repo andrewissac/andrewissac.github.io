@@ -1,5 +1,6 @@
 import Vector2D from "../Utils/Vector2D.js"
 import * as helpers from "../Utils/helpers.js"
+import Lissajous from "./LissajousFigure.js";
 
 // #region global variables
 var canvasHeight = 500;
@@ -46,27 +47,32 @@ function drawPoint(point){
 // #endregion
 
 const radius = Math.floor(canvasWidth/2);
-let alphaDegree = 0;
-let smallCirclePos = new Vector2D(0, 0);
+
+const delta_t = 0.02;
+var t = helpers.range(0, 200, delta_t);
+
 const whiteLineStrokeStyle = "rgba(255, 255, 255, 1.0)";
+ctx.strokeStyle = whiteLineStrokeStyle;
+ctx.lineWidth = 2;
+var i = 0;
+const tempFigPos = new Vector2D(0,0);
+const Ax = Math.floor(canvasWidth/2);
+const Ay = Math.floor(canvasHeight/2);
+let lissajous = new Lissajous(tempFigPos, Ax, Ay,
+  1, 1, 0, Math.PI/2);
 // #region animation function
     function draw(){
-        
-        if((alphaDegree % 360) === 0){
-          alphaDegree = 0;
+        // if(i >= t.length){
+        //   i = 0;
+        //   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        // }
+        if(i >= 629){
+          i = 0;
           ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         }
-        //ctx.beginPath();
-        const x = canvasMiddle.x + radius * helpers.Cos(2*alphaDegree, false);
-        const y = canvasMiddle.y + radius * helpers.Sin(alphaDegree+90, false);
-        smallCirclePos.UpdatePosition(x, y);
+        lissajous.Draw(ctx, t[i], t[i+1]);
         
-        drawCircle(canvasMiddle, radius, whiteLineStrokeStyle);
-        drawFilledCircle(smallCirclePos, 5, "rgba(255, 110, 180, 1.0)", "rgba(255, 110, 180, 1.0)");
-        helpers.drawHorizontalLine(ctx, smallCirclePos.y, canvasWidth, whiteLineStrokeStyle);
-        helpers.drawVerticalLine(ctx, smallCirclePos.x, canvasHeight, whiteLineStrokeStyle);
-
-        alphaDegree++;
+        i++;
         window.requestAnimationFrame(draw);
     }
 // #endregion

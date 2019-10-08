@@ -184,8 +184,8 @@ var ctx = canvas.getContext('2d');
       let tempx = rayCaster.position.x + simplex.noise2D(simplexOffsetX, simplexOffsetY)*200;
       let tempy = rayCaster.position.y + simplex.noise2D(simplexOffsetY, simplexOffsetX)*200;
       // change variables to get new point on next draw
-      simplexOffsetX += 0.0015;
-      simplexOffsetY += 0.0015;
+      simplexOffsetX += 0.0005;
+      simplexOffsetY += 0.0005;
       
       // out of bounds checks
       if(tempx < 0 || tempx > canvas_width || tempy < 0 || tempy > canvas_height){
