@@ -12,7 +12,7 @@ var canvas = document.getElementById("myCanvas");
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 var ctx = canvas.getContext('2d');
-
+//ctx.lineWidth = 1;
 
 // #region drawing functions
 function drawPoint(point){

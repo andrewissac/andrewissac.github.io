@@ -81,6 +81,7 @@ var ctx = canvas.getContext('2d');
 // #region Draw functions
   function drawPoints(points){
     if(typeof(points) === "undefined") { return; }
+    ctx.beginPath();
     for(let i=0; i < points.length; i++){
       drawPoint(points[i]);
     }
@@ -89,10 +90,8 @@ var ctx = canvas.getContext('2d');
   function drawPoint(point){
     if(typeof(point) === 'undefined' || point === null) { return; }
     ctx.save();
-    ctx.beginPath();
     ctx.fillStyle = "#FFFF00";
     ctx.fillRect(point.x, point.y, 1, 1);
-    //ctx.closePath();
     ctx.restore();
   }
 
@@ -103,7 +102,6 @@ var ctx = canvas.getContext('2d');
     ctx.arc(origin.x, origin.y, radius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
-    //ctx.closePath();
     ctx.restore();
   }
 
@@ -111,19 +109,21 @@ var ctx = canvas.getContext('2d');
     ctx.save();
     ctx.strokeStyle = "rgba(255, 255, 255, 1.0)";
     ctx.lineWidth = 2;
+    ctx.beginPath();
     for(let i = 0; i < lines.length; i++){
-      ctx.beginPath();
       lines[i].Draw(ctx);
     }
-    //ctx.closePath();
+    ctx.stroke();
     ctx.restore();
   }
 
   function drawRays(Raycaster){
     ctx.save();
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.lineWidth = 1;
+    ctx.beginPath()
     Raycaster.Draw(ctx);
+    ctx.stroke();
     ctx.restore();
   }
 // #endregion

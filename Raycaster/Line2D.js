@@ -95,6 +95,6 @@ export default class Line2D{
     Draw(context){
         context.moveTo(this.offset.x, this.offset.y);
         context.lineTo(this.offset.x + this.direction.x, this.offset.y + this.direction.y);
-        context.stroke();
+        //context.stroke();
     }
 }

@@ -93,7 +93,6 @@ export default class Raycaster{
 
     Draw(context){
         for(let ray of this.rays){
-            context.beginPath();
             ray.Draw(context);
         }
     }
