@@ -65,7 +65,7 @@ var i = 0;
 var rows = 4;
 var cols = 4;
 
-var lissajousTable = new LissajousTable(rows+1, cols+1, canvasWidth, canvasHeight, 5, 5);
+var lissajousTable = new LissajousTable(rows+1, cols+1, canvasWidth, canvasHeight, 5);
 
 // #region animation function
     function draw(){
