@@ -4,8 +4,8 @@ import Lissajous from "./LissajousFigure.js";
 import LissajousTable from "./LissajousTable.js";
 
 // #region global variables
-var canvasHeight = 500;
-var canvasWidth = 500;
+var canvasHeight = 800;
+var canvasWidth = 800;
 var canvasMiddle = new Vector2D(Math.floor(canvasWidth/2 + 0.5), Math.floor(canvasHeight/2 + 0.5));
 // #endregion
 
@@ -62,19 +62,10 @@ bgCtx.lineWidth = 2;
 fgCtx.strokeStyle = whiteLineStrokeStyle;
 fgCtx.lineWidth = 2;
 var i = 0;
-var rows = 2;
-var cols = 2;
+var rows = 4;
+var cols = 4;
 
-var lissajousTable = new LissajousTable(rows, cols, canvasWidth, canvasHeight, 5, 5);
-console.log(lissajousTable);
-// const tempFigPos = new Vector2D(0,0);
-// const Ax = Math.floor(canvasWidth/2);
-// const Ay = Math.floor(canvasHeight/2);
-// let lissajous = new Lissajous(tempFigPos, Ax, Ay, 1, 1, 0, Math.PI/2);
-// let lissajous2 = new Lissajous(tempFigPos, Ax, Ay, 1, 2, 0, Math.PI/2);
-// let lissajous3 = new Lissajous(tempFigPos, Ax, Ay, 1, 1, 0, Math.PI/4);
-// let lissajous5 = new Lissajous(tempFigPos, Ax, Ay, -1, 1, 0, Math.PI/4);
-// let lissajous4 = new Lissajous(tempFigPos, Ax, Ay, 1, 2, 0, Math.PI/4);
+var lissajousTable = new LissajousTable(rows+1, cols+1, canvasWidth, canvasHeight, 5, 5);
 
 // #region animation function
     function draw(){
@@ -83,14 +74,10 @@ console.log(lissajousTable);
         i = 0;
         bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
       }
-      // lissajous.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-      // lissajous2.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-      // lissajous3.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-      // lissajous4.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-      // lissajous5.Draw(bgCtx, fgCtx, t[i], t[i+1]);
-      for(let row = 0; row < rows; row++){
-        for(let col = 0; col < cols; col++){
-          lissajousTable[row][col].Draw(bgCtx, fgCtx, t[i], t[i+1]);
+      for(let row = 0; row < rows+1; row++){
+        for(let col = 0; col < cols+1; col++){
+          if(row === 0 & col === 0) { continue; } // skip the very first figure
+          lissajousTable.figures[row][col].Draw(bgCtx, fgCtx, t[i], t[i+1]);
         }
       }
       

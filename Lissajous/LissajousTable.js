@@ -34,39 +34,43 @@ export default class LissajousTable{
     }
 
     FillTable(){
-        for(let i = 0; i < this.rows ; i++){
-            this.figures[i] = [];
-            for(let j = 0; j < this.cols; j++){
+        for(let row = 0; row < this.rows ; row++){
+            this.figures[row] = [];
+            for(let col = 0; col < this.cols; col++){
                 const figurePos = new Vector2D(
-                    (j + 1) * this._cellWidth + (2 * j + 1) * this._cellMarginX,
-                    (i + 1) * this._cellHeight + (2 * i + 1) * this._cellMarginY);
+                    col * this._cellWidth + (2 * col + 1) * this._cellMarginX,
+                    row * this._cellHeight + (2 * row + 1) * this._cellMarginY);
                 // top left entry
-                if(i === 0 && j === 0){
-                    this.figures[i][j] = new Lissajous(
-                        figurePos, Math.floor(this._cellWidth / 2 - this._cellMarginX) , Math.floor(this._cellHeight / 2 - this._cellMarginY),
-                        i+1, j+1, 0, Math.PI/2);
+                if(row === 0 && col === 0){
+                    // this is actually just a dummy that will not be displayed anyways
+                    this.figures[row][col] = new Lissajous(
+                        figurePos, Math.floor(this._cellWidth / 2 - 2 * this._cellMarginX) , Math.floor(this._cellHeight / 2 -  2 * this._cellMarginY),
+                        0, 0, 0, Math.PI/2);
                 }
                 // first row
-                else if(i === 0 && j > 0){
-                    this.figures[i][j] = new Lissajous(
-                        figurePos, Math.floor(this._cellWidth / 2 - this._cellMarginX), Math.floor(this._cellHeight / 2 - this._cellMarginY),
-                        j, j, 0, Math.PI/2, false, true);
+                else if(row === 0 && col > 0){
+                    this.figures[row][col] = new Lissajous(
+                        figurePos, Math.floor(this._cellWidth / 2 - 2 * this._cellMarginX), Math.floor(this._cellHeight / 2 - 2 * this._cellMarginY),
+                        col, col, 0, Math.PI/2, false, true);
                 }
                 // first column
-                else if(j === 0 && i > 0){
-                    this.figures[i][j] = new Lissajous(
-                        figurePos, Math.floor(this._cellWidth / 2 - this._cellMarginX), Math.floor(this._cellHeight / 2 - this._cellMarginY),
-                        i, i, 0, Math.PI/2, true, false);
+                else if(col === 0 && row > 0){
+                    this.figures[row][col] = new Lissajous(
+                        figurePos, Math.floor(this._cellWidth / 2 - 2 * this._cellMarginX), Math.floor(this._cellHeight / 2 - 2 * this._cellMarginY),
+                        row, row, 0, Math.PI/2, true, false);
                 }
                 // rest of table actual lissajous figures
                 else{
-                    this.figures[i][j] = new Lissajous(
-                        figurePos, Math.floor(this._cellWidth / 2 - this._cellMarginX), Math.floor(this._cellHeight / 2 - this._cellMarginY),
-                        i+1, j+1, 0, Math.PI/2);
+                    const tempX = figurePos.x;
+                    const tempY = figurePos.y;
+                    figurePos.x = tempY;
+                    figurePos.y = tempX;
+                    this.figures[row][col] = new Lissajous(
+                        figurePos, Math.floor(this._cellWidth / 2 - 2 * this._cellMarginX), Math.floor(this._cellHeight / 2 - 2 * this._cellMarginY),
+                        row, col, 0, Math.PI/2);
                 }
             }
         }
     }
-
 
 }
