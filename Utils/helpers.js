@@ -87,7 +87,14 @@ export function drawHorizontalLine(context, posY, canvasWidth, rgbaStroke){
 
     const length = Math.floor(Math.abs((end - start) / step));
     return Array.from(Array(length), (x, index) => start + index * step);
-    
+  }
+
+  export function make2DArray(rows, cols) {
+    var arr = new Array(rows);
+    for (var i = 0; i < arr.length; i++) {
+      arr[i] = new Array(cols);
+    }
+    return arr;
   }
 // #endregion
 

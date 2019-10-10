@@ -6,7 +6,6 @@ import LissajousTable from "./LissajousTable.js";
 // #region global variables
 var canvasHeight = 800;
 var canvasWidth = 800;
-var canvasMiddle = new Vector2D(Math.floor(canvasWidth/2 + 0.5), Math.floor(canvasHeight/2 + 0.5));
 // #endregion
 
 // Get canvas and context of canvas
@@ -51,8 +50,6 @@ function drawPoint(point){
   }
 // #endregion
 
-const radius = Math.floor(canvasWidth/2);
-
 const delta_t = 0.02;
 var t = helpers.range(0, 200, delta_t);
 
@@ -62,10 +59,9 @@ bgCtx.lineWidth = 2;
 fgCtx.strokeStyle = whiteLineStrokeStyle;
 fgCtx.lineWidth = 2;
 var i = 0;
-var rows = 4;
-var cols = 4;
+var size = 100;
 
-var lissajousTable = new LissajousTable(rows+1, cols+1, canvasWidth, canvasHeight, 5);
+var lissajousTable = new LissajousTable(canvasWidth, canvasHeight, size);
 
 // #region animation function
     function draw(){
@@ -74,15 +70,15 @@ var lissajousTable = new LissajousTable(rows+1, cols+1, canvasWidth, canvasHeigh
         i = 0;
         bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
       }
-      for(let row = 0; row < rows+1; row++){
-        for(let col = 0; col < cols+1; col++){
+      for(let row = 0; row < lissajousTable.rows; row++){
+        for(let col = 0; col < lissajousTable.cols; col++){
           if(row === 0 & col === 0) { continue; } // skip the very first figure
           lissajousTable.figures[row][col].Draw(bgCtx, fgCtx, t[i], t[i+1]);
+          console.log("row: " + row + " and col: " + col);
         }
       }
-      
       i++;
-      window.requestAnimationFrame(draw);
+      //window.requestAnimationFrame(draw);
     }
 // #endregion
 
