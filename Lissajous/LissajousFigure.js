@@ -135,4 +135,24 @@ export default class Lissajous{
         }
     }
 
+    DrawWholeFigure(bgContext, fgContext, phaseshift){
+        const t = helpers.range(0, 6.28, 0.01);
+        this._phaseshift1 = 0;
+        this._phaseshift2 = phaseshift;
+        fgContext.beginPath();
+        fgContext.save();
+        fgContext.strokeStyle = "hsl(255, 100%, 50%)";
+        fgContext.lineWidth = 2;
+        let pos = new Vector2D(0,0);
+        let newPos = new Vector2D(0,0);
+        for(let i = 0; i < t.length-1; i++){
+            pos =  this.center.Add(this.CalcXY(t[i]));
+            newPos = this.center.Add(this.CalcXY(t[i+1]));
+            fgContext.moveTo(pos.x, pos.y);
+            fgContext.lineTo(newPos.x, newPos.y);
+        }
+        fgContext.stroke();
+        fgContext.restore()
+    }
+
 }
