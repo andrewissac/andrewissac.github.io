@@ -21,12 +21,12 @@ var fgCtx = foregroundCanvas.getContext('2d');
 
 let center = new Vector2D(Math.floor(canvasWidth/2), Math.floor(canvasHeight/2));
 
-var lissajous = new Lissajous(center, 200, 1, 3, 0, Math.PI/2);
+var lissajous = new Lissajous(center, 400, 3, 8, 0, Math.PI/2);
 
-let t = helpers.range(0, 6.28, 0.01);
+let t = helpers.range(0, 13, 0.01);
 let i = 0;
 function draw(){
-    if(i > 628){
+    if(i > 1300){
         i = 0;
     }
     lissajous._omega1 = t[i];

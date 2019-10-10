@@ -50,7 +50,7 @@ function drawPoint(point){
   }
 // #endregion
 
-const delta_t = 0.02;
+const delta_t = 0.015; // determines the speed of the animation
 var t = helpers.range(0, 200, delta_t);
 
 const whiteLineStrokeStyle = "rgba(255, 255, 255, 1.0)";
@@ -61,26 +61,34 @@ fgCtx.lineWidth = 2;
 var i = 0;
 var size = 100;
 
+var fadeAway = false; // bind it to checkbox
+
 var lissajousTable = new LissajousTable(canvasWidth, canvasHeight, size);
 
-var liss = new Lissajous(new Vector2D(400,400), 200, 1, 1, 0, Math.PI/2, true, true);
-
 // #region animation function
-    function draw(){
-      fgCtx.clearRect(0,0, canvasWidth, canvasHeight);
-      if(i >= 629){
-        i = 0;
-        bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-      }
-      for(let row = 0; row < lissajousTable.rows; row++){
-        for(let col = 0; col < lissajousTable.cols; col++){
-          if(row === 0 & col === 0) { continue; } // skip the very first figure
-          lissajousTable.figures[row][col].Draw(bgCtx, fgCtx, t[i], t[i+1]);
-        }
-      }
-      i++;
-      window.requestAnimationFrame(draw);
+  function draw(){
+    fgCtx.clearRect(0,0, canvasWidth, canvasHeight);
+    if(fadeAway){
+      bgCtx.save();
+      bgCtx.fillStyle = "rgba(0, 0, 0, 0.01)";
+      bgCtx.fillRect(0,0, canvasWidth, canvasHeight);
+      bgCtx.restore();
     }
+    // make sure 
+    if(i >= 629){
+      i = 0;
+      bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+    }
+
+    for(let row = 0; row < lissajousTable.rows; row++){
+      for(let col = 0; col < lissajousTable.cols; col++){
+        if(row === 0 & col === 0) { continue; } // skip the very first figure
+        lissajousTable.figures[row][col].Draw(bgCtx, fgCtx, t[i], t[i+1]);
+      }
+    }
+    i++;
+    window.requestAnimationFrame(draw);
+  }
 // #endregion
 
 window.requestAnimationFrame(draw);

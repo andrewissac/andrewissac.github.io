@@ -112,16 +112,17 @@ export default class Lissajous{
         const oldPos = this.center.Add(this.CalcXY(tOld));
         const newPos = this.center.Add(this.CalcXY(t));
         bgContext.beginPath();
-        const hue = t*100 > 255 ? t*100 - 255 : t*100;
-        bgContext.strokeStyle = "hsl(" + hue + ", 100%,  80%)";
+        const hue = t*100 > 255 ? t*100 - 255 : t*100; // makes sure rainbowcolors are repeating
+        bgContext.strokeStyle = "hsl(" + hue + ", 100%,  78%)";
         bgContext.moveTo(oldPos.x, oldPos.y);
         bgContext.lineTo(newPos.x, newPos.y);
         bgContext.stroke();
+        
 
         fgContext.beginPath();
         fgContext.fillStyle = "rgba(255, 192, 203, 1.0)";
         const whiteLinestrokeStyle = "rgba(255, 255, 255, 0.3)";
-        fgContext.arc(newPos.x, newPos.y, 6, 0, 2 * Math.PI);
+        fgContext.arc(newPos.x, newPos.y, Math.ceil(this.cellSize*0.03), 0, 2 * Math.PI);
         fgContext.fill();
 
         fgContext.strokeStyle = whiteLinestrokeStyle;
@@ -141,10 +142,12 @@ export default class Lissajous{
         this._phaseshift2 = phaseshift;
         fgContext.beginPath();
         fgContext.save();
-        fgContext.strokeStyle = "hsl(255, 100%, 50%)";
+        const hue = phaseshift*100 > 255 ? phaseshift*100 - 255 : phaseshift*100; // makes sure rainbowcolors are repeating
+        fgContext.strokeStyle = "hsl(" + hue + ", 100%,  78%)";
         fgContext.lineWidth = 2;
         let pos = new Vector2D(0,0);
         let newPos = new Vector2D(0,0);
+
         for(let i = 0; i < t.length-1; i++){
             pos =  this.center.Add(this.CalcXY(t[i]));
             newPos = this.center.Add(this.CalcXY(t[i+1]));
