@@ -98,8 +98,8 @@ export default class Lissajous{
 
     CalcXY(t){
         return new Vector2D(
-            this.amplitude * Math.sin(this.omega1 * t + this.phaseshift1), 
-            this.amplitude * Math.sin(this.omega2 * t + this.phaseshift2));
+            this._amplitude * Math.sin(this.omega1 * t + this.phaseshift1), 
+            this._amplitude * Math.sin(this.omega2 * t + this.phaseshift2));
     }
 
     Clone(){
@@ -112,6 +112,8 @@ export default class Lissajous{
         const oldPos = this.center.Add(this.CalcXY(tOld));
         const newPos = this.center.Add(this.CalcXY(t));
         bgContext.beginPath();
+        const hue = t*100 > 255 ? t*100 - 255 : t*100;
+        bgContext.strokeStyle = "hsl(" + hue + ", 100%,  80%)";
         bgContext.moveTo(oldPos.x, oldPos.y);
         bgContext.lineTo(newPos.x, newPos.y);
         bgContext.stroke();

@@ -63,6 +63,8 @@ var size = 100;
 
 var lissajousTable = new LissajousTable(canvasWidth, canvasHeight, size);
 
+var liss = new Lissajous(new Vector2D(400,400), 200, 1, 1, 0, Math.PI/2, true, true);
+
 // #region animation function
     function draw(){
       fgCtx.clearRect(0,0, canvasWidth, canvasHeight);
@@ -74,11 +76,10 @@ var lissajousTable = new LissajousTable(canvasWidth, canvasHeight, size);
         for(let col = 0; col < lissajousTable.cols; col++){
           if(row === 0 & col === 0) { continue; } // skip the very first figure
           lissajousTable.figures[row][col].Draw(bgCtx, fgCtx, t[i], t[i+1]);
-          console.log("row: " + row + " and col: " + col);
         }
       }
       i++;
-      //window.requestAnimationFrame(draw);
+      window.requestAnimationFrame(draw);
     }
 // #endregion
 
