@@ -85,11 +85,11 @@ function drawPoint(point){
   var drawingSpeedSlider = document.getElementById("drawingSpeedSlider");
   drawingSpeedSlider.value = delta_t;
   var drawingSpeedValue = document.getElementById("drawingSpeedValue");
-  drawingSpeedValue.innerHTML = drawingSpeedSlider.value * 2000; // Display the default slider value
+  drawingSpeedValue.innerHTML = drawingSpeedSlider.value * 1000; // Display the default slider value
 
   // Update the current slider value (each time you drag the slider handle)
   drawingSpeedSlider.oninput = function() {
-    drawingSpeedValue.innerHTML = this.value * 2000;
+    drawingSpeedValue.innerHTML = this.value * 1000;
     delta_t = this.value;
     t = helpers.range(0, 200, delta_t);
     if(liveResetCanvas){
