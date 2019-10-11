@@ -13,7 +13,7 @@ var lissFigureSize = 100;
 var fadeAway = false;
 var fadeAwaySpeed = 0.01;
 var lissajousTable = new LissajousTable(canvasWidth, canvasHeight, lissFigureSize);
-var liveResetCanvas = true;
+var liveResetCanvas = false;
 var resetCanvas = false;
 var i = 0;
 // #endregion
