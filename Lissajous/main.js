@@ -11,6 +11,7 @@ var delta_t = 0.015; // determines the speed of the animation
 var t = helpers.range(0, 200, delta_t);
 var lissFigureSize = 100;
 var fadeAway = false;
+var fadeAwaySpeed = 0.01;
 var lissajousTable = new LissajousTable(canvasWidth, canvasHeight, lissFigureSize);
 var liveResetCanvas = true;
 var resetCanvas = false;
@@ -98,6 +99,19 @@ function drawPoint(point){
   }
   // #endregion
 
+  // #region figureSize slider
+  var fadeAwaySpeedSlider = document.getElementById("fadeAwaySpeedSlider");
+  fadeAwaySpeedSlider.value = fadeAwaySpeed;
+  var fadeAwaySpeedValue = document.getElementById("fadeAwaySpeedValue");
+  fadeAwaySpeedValue.innerHTML = fadeAwaySpeedSlider.value * 1000; // Display the default slider value
+
+  // Update the current slider value (each time you drag the slider handle)
+  fadeAwaySpeedSlider.oninput = function() {
+    fadeAwaySpeedValue.innerHTML = this.value * 1000;
+    fadeAwaySpeed = this.value;
+  }
+  // #endregion
+
   // #region fadeAway Checkbox
   var fadeAwayCheckbox = document.getElementById("fadeAwayCheckbox");
   fadeAwayCheckbox.checked = fadeAway;
@@ -130,7 +144,7 @@ function drawPoint(point){
     fgCtx.clearRect(0,0, canvasWidth, canvasHeight);
     if(fadeAway){
       bgCtx.save();
-      bgCtx.fillStyle = "rgba(0, 0, 0, 0.01)";
+      bgCtx.fillStyle = "rgba(0, 0, 0," + fadeAwaySpeed +")";
       bgCtx.fillRect(0,0, canvasWidth, canvasHeight);
       bgCtx.restore();
     }
