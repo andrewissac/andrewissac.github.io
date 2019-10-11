@@ -5,8 +5,6 @@ export default class LissajousTable{
     constructor(canvasWidth, canvasHeight, cellSize){
         this._rows = Math.floor(canvasHeight / cellSize);
         this._cols = Math.floor(canvasWidth / cellSize);
-        console.log(this._rows);
-        console.log(this._cols);
         this._cellSize = cellSize;
         this.figures = [];
         this.FillTable();

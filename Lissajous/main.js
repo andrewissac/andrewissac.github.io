@@ -6,18 +6,31 @@ import LissajousTable from "./LissajousTable.js";
 // #region global variables
 var canvasHeight = 800;
 var canvasWidth = 800;
+const whiteLineStrokeStyle = "rgba(255, 255, 255, 1.0)";
+var delta_t = 0.015; // determines the speed of the animation
+var t = helpers.range(0, 200, delta_t);
+var lissFigureSize = 100;
+var fadeAway = false;
+var lissajousTable = new LissajousTable(canvasWidth, canvasHeight, lissFigureSize);
+var liveResetCanvas = true;
+var resetCanvas = false;
+var i = 0;
 // #endregion
 
-// Get canvas and context of canvas
+// #region getting canvas and context of fore- and background
 var backgroundCanvas = document.getElementById("backgroundCanvas");
 backgroundCanvas.width = canvasWidth;
 backgroundCanvas.height = canvasHeight;
 var bgCtx = backgroundCanvas.getContext('2d');
+bgCtx.strokeStyle = whiteLineStrokeStyle;
+bgCtx.lineWidth = 2;
 var foregroundCanvas = document.getElementById("foregroundCanvas");
 foregroundCanvas.width = canvasWidth;
 foregroundCanvas.height = canvasHeight;
 var fgCtx = foregroundCanvas.getContext('2d');
-//ctx.lineWidth = 1;
+fgCtx.strokeStyle = whiteLineStrokeStyle;
+fgCtx.lineWidth = 2;
+// #endregion
 
 // #region drawing functions
 function drawPoint(point){
@@ -50,20 +63,67 @@ function drawPoint(point){
   }
 // #endregion
 
-const delta_t = 0.015; // determines the speed of the animation
-var t = helpers.range(0, 200, delta_t);
+// #region Inputs
+  // #region figureSize slider
+  var figureSizeSlider = document.getElementById("figureSizeSlider");
+  figureSizeSlider.value = lissFigureSize;
+  var figureSizeValue = document.getElementById("figureSizeValue");
+  figureSizeValue.innerHTML = figureSizeSlider.value; // Display the default slider value
 
-const whiteLineStrokeStyle = "rgba(255, 255, 255, 1.0)";
-bgCtx.strokeStyle = whiteLineStrokeStyle;
-bgCtx.lineWidth = 2;
-fgCtx.strokeStyle = whiteLineStrokeStyle;
-fgCtx.lineWidth = 2;
-var i = 0;
-var size = 100;
+  // Update the current slider value (each time you drag the slider handle)
+  figureSizeSlider.oninput = function() {
+    figureSizeValue.innerHTML = this.value;
+    lissFigureSize = this.value;
+    lissajousTable = new LissajousTable(canvasWidth, canvasHeight, lissFigureSize);
+    if(liveResetCanvas){
+      resetCanvas = true;
+    }
+  }
+  // #endregion
 
-var fadeAway = false; // bind it to checkbox
+  // #region figureSize slider
+  var drawingSpeedSlider = document.getElementById("drawingSpeedSlider");
+  drawingSpeedSlider.value = delta_t;
+  var drawingSpeedValue = document.getElementById("drawingSpeedValue");
+  drawingSpeedValue.innerHTML = drawingSpeedSlider.value * 2000; // Display the default slider value
 
-var lissajousTable = new LissajousTable(canvasWidth, canvasHeight, size);
+  // Update the current slider value (each time you drag the slider handle)
+  drawingSpeedSlider.oninput = function() {
+    drawingSpeedValue.innerHTML = this.value * 2000;
+    delta_t = this.value;
+    t = helpers.range(0, 200, delta_t);
+    if(liveResetCanvas){
+      resetCanvas = true;
+    }
+  }
+  // #endregion
+
+  // #region fadeAway Checkbox
+  var fadeAwayCheckbox = document.getElementById("fadeAwayCheckbox");
+  fadeAwayCheckbox.checked = fadeAway;
+
+  fadeAwayCheckbox.onclick = function() {
+    fadeAway = this.checked;
+  }
+  // #endregion
+
+  // #region liveReset Checkbox
+  var liveResetCheckbox = document.getElementById("liveResetCheckbox");
+  liveResetCheckbox.checked = liveResetCanvas;
+
+  liveResetCheckbox.onclick = function() {
+    liveResetCanvas = this.checked;
+  }
+  // #endregion
+
+  // #region reset canvas button
+  var resetCanvasButton = document.getElementById("resetCanvasButton");
+
+  resetCanvasButton.onclick = function() {
+    resetCanvas = true;
+  }
+  // #endregion
+// #endregion
 
 // #region animation function
   function draw(){
@@ -75,8 +135,9 @@ var lissajousTable = new LissajousTable(canvasWidth, canvasHeight, size);
       bgCtx.restore();
     }
     // make sure 
-    if(i >= 629){
+    if(i >= 629 || resetCanvas == true){
       i = 0;
+      resetCanvas = false;
       bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
     }
 

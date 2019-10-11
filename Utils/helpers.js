@@ -73,9 +73,9 @@ export function drawHorizontalLine(context, posY, canvasWidth, rgbaStroke){
   export function range(start, end, step = 1) {
     const allNumbers = [start, end, step].every(Number.isFinite);
   
-    if (!allNumbers) {
-      throw new TypeError('range() expects only finite numbers as arguments.');
-    }
+    // if (!allNumbers) {
+    //   throw new TypeError('range() expects only finite numbers as arguments.');
+    // }
     
     if (step <= 0) {
       throw new Error('step must be a number greater than 0.');
