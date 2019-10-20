@@ -93,26 +93,34 @@ for (let k = 0; k < lines.length; k++) {
 bgCtx.stroke();
 
 let i = 0;
+let hue = 0;
+const delta_hue = Math.floor(360 / numberOfDots);
 
 function draw() {
 	fgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 	if (i >= t.length) {
 		i = 0;
 	}
+	if (hue > 360) {
+		hue = 0;
+	}
 
 	for (let j = 0; j < lines.length; j++) {
-		const pointOrigin = lines[j].GetPointOnLine(Math.sin(t[i] - j * shift_angle));
-		const hue = i > 255 ? i % 255 : i; // makes sure rainbowcolors are repeating
-		console.log(hue);
-		// const strokeStyle = "hsl(" + hue + ", 100%,  78%)";
-		const strokeStyle = "rgba(255,0,0,1.0)";
-
+		const pointOrigin = lines[j].GetPointOnLine(Math.sin(t[i] + j * shift_angle));
+		//const hueTemp = hue + Math.floor() // makes sure rainbowcolors are repeating
+		const strokeStyle = "hsl(" + hue + ", 100%,  70%)";
 		fgCtx.beginPath();
+		fgCtx.save();
+		fgCtx.fillStyle = strokeStyle;
+		fgCtx.strokeStyle = strokeStyle;
 		helpers.drawFilledCircle(fgCtx, pointOrigin, 5, strokeStyle, strokeStyle);
 		fgCtx.fill();
 		fgCtx.stroke();
+		fgCtx.restore();
 	}
+
 	i++;
+	hue++;
 	window.requestAnimationFrame(draw);
 }
 

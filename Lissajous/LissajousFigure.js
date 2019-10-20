@@ -120,7 +120,7 @@ export default class Lissajous {
 		const oldPos = this.center.Add(this.CalcXY(tOld));
 		const newPos = this.center.Add(this.CalcXY(t));
 		bgContext.beginPath();
-		const hue = t * 100 > 255 ? t * 100 - 255 : t * 100; // makes sure rainbowcolors are repeating
+		const hue = t * 100 > 360 ? t * 100 - 360 : t * 100; // makes sure rainbowcolors are repeating
 		bgContext.strokeStyle = "hsl(" + hue + ", 100%,  78%)";
 		bgContext.moveTo(oldPos.x, oldPos.y);
 		bgContext.lineTo(newPos.x, newPos.y);
