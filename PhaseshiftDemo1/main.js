@@ -93,6 +93,7 @@ for (let k = 0; k < lines.length; k++) {
 bgCtx.stroke();
 
 let i = 0;
+
 function draw() {
 	fgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 	if (i >= t.length) {
@@ -100,7 +101,7 @@ function draw() {
 	}
 
 	for (let j = 0; j < lines.length; j++) {
-		const pointOrigin = lines[j].GetPointOnLine_(Math.sin(t[i] - j * shift_angle));
+		const pointOrigin = lines[j].GetPointOnLine(Math.sin(t[i] - j * shift_angle));
 		const hue = i > 255 ? i % 255 : i; // makes sure rainbowcolors are repeating
 		console.log(hue);
 		// const strokeStyle = "hsl(" + hue + ", 100%,  78%)";

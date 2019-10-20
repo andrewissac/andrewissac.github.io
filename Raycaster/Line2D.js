@@ -52,18 +52,18 @@ export default class Line2D {
 		} else {
 			const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
 			const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator;
-			return this.GetPointOnLine(t, u);
+			return this.GetIntersectionPointOnLine(t, u);
 		}
 	}
 
-	GetPointOnLine(t, u) {
+	GetIntersectionPointOnLine(t, u) {
 		// t and u must be between 0.0 and 1.0
 		if (0.0 <= t && t <= 1.0 && 0.0 <= u && u <= 1.0) {
 			return new Vector2D(this.offset.x + t * this.direction.x, this.offset.y + t * this.direction.y);
 		}
 	}
 
-	GetPointOnLine_(t) {
+	GetPointOnLine(t) {
 		return new Vector2D(this.offset.x + t * this.direction.x, this.offset.y + t * this.direction.y);
 	}
 
