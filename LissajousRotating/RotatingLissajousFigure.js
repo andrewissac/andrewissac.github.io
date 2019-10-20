@@ -29,10 +29,10 @@ export default class RotatingLissajousFigure extends Lissajous {
 		for (let i = 0; i < t.length - 1; i++) {
 			pos = this.center.Add(this.CalcXY(t[i]));
 			newPos = this.center.Add(this.CalcXY(t[i + 1]));
-			fgContext.moveTo(pos.x, pos.y);
-			fgContext.lineTo(newPos.x, newPos.y);
+			bgContext.moveTo(pos.x, pos.y);
+			bgContext.lineTo(newPos.x, newPos.y);
 		}
-		fgContext.stroke();
-		fgContext.restore();
+		bgContext.stroke();
+		bgContext.restore();
 	}
 }

@@ -6,17 +6,16 @@ import Vector2D from "../Utils/Vector2D.js";
 var canvasHeight = 800;
 var canvasWidth = 800;
 const whiteLineStrokeStyle = "rgba(255, 255, 255, 1.0)";
-var fadeAway = false;
+var fadeAway = true;
 var liveResetCanvas = false;
 var resetCanvas = false;
-var fadeAwaySpeed = 0.01;
+var fadeAwaySpeed = 0.3;
 var lissFigureSize = 400;
-var delta_phaseshift1 = 0.015;
-var delta_phaseshift2 = 0.015;
+var delta_phaseshift = 0.015;
 var omega1 = 1;
 var omega2 = 1;
-let t1 = helpers.range(0, 13, delta_phaseshift1);
-let t2 = helpers.range(0, 13, delta_phaseshift2);
+
+let t = helpers.range(0, 6.28, delta_phaseshift);
 let i = 0;
 
 let center = new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2));
@@ -71,36 +70,17 @@ omega2Slider.oninput = function() {
 };
 // #endregion
 
-// #region phaseshift 1 slider
-var phaseshift1IncrementSlider = document.getElementById("phaseshift1IncrementSlider");
-phaseshift1IncrementSlider.value = delta_phaseshift1;
-var phaseshift1IncrementValue = document.getElementById("phaseshift1IncrementValue");
-phaseshift1IncrementSlider.innerHTML = phaseshift1IncrementSlider.value; // Display the default slider value
+// #region phaseshift slider
+var phaseshiftSlider = document.getElementById("phaseshiftSlider");
+phaseshiftSlider.value = delta_phaseshift;
+var phaseshiftValue = document.getElementById("phaseshiftValue");
+phaseshiftValue.innerHTML = phaseshiftSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
-phaseshift1IncrementSlider.oninput = function() {
-	phaseshift1IncrementValue.innerHTML = this.value;
-	delta_phaseshift1 = this.value;
-	t1 = helpers.range(0, 13, delta_phaseshift1);
-	t2 = helpers.range(0, 13, delta_phaseshift2);
-	if (liveResetCanvas) {
-		resetCanvas = true;
-	}
-};
-// #endregion
-
-// #region phaseshift 2 slider
-var phaseshift2IncrementSlider = document.getElementById("phaseshift2IncrementSlider");
-phaseshift2IncrementSlider.value = delta_phaseshift2;
-var phaseshift2IncrementValue = document.getElementById("phaseshift2IncrementValue");
-phaseshift2IncrementValue.innerHTML = phaseshift2IncrementSlider.value; // Display the default slider value
-
-// Update the current slider value (each time you drag the slider handle)
-phaseshift2IncrementSlider.oninput = function() {
-	phaseshift2IncrementValue.innerHTML = this.value;
-	delta_phaseshift2 = this.value;
-	t1 = helpers.range(0, 13, delta_phaseshift1);
-	t2 = helpers.range(0, 13, delta_phaseshift2);
+phaseshiftSlider.oninput = function() {
+	phaseshiftValue.innerHTML = this.value;
+	delta_phaseshift = this.value;
+	t = helpers.range(0, 6.28, delta_phaseshift);
 	if (liveResetCanvas) {
 		resetCanvas = true;
 	}
@@ -143,7 +123,6 @@ liveResetCheckbox.onclick = function() {
 
 // #region reset canvas button
 var resetCanvasButton = document.getElementById("resetCanvasButton");
-
 resetCanvasButton.onclick = function() {
 	resetCanvas = true;
 };
@@ -151,14 +130,19 @@ resetCanvasButton.onclick = function() {
 // #endregion
 
 function draw() {
-	if (i > 1300) {
+	if (fadeAway) {
+		bgCtx.save();
+		bgCtx.fillStyle = "rgba(0, 0, 0," + fadeAwaySpeed + ")";
+		bgCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+		bgCtx.restore();
+	}
+	if (i * delta_phaseshift > 6.28 || resetCanvas == true) {
 		i = 0;
+		resetCanvas = false;
+		bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 	}
 
-	lissajous.Update(lissFigureSize, omega1, omega2, t1[i], t2[i]);
-	//lissajous.Update(lissFigureSize);
-	//lissajous._omega1 = t[i];
-	//fgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+	lissajous.Update(lissFigureSize, omega1, omega2, 0, t[i]);
 	lissajous.DrawWholeFigure(bgCtx, fgCtx);
 	i++;
 	window.requestAnimationFrame(draw);
