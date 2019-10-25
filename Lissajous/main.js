@@ -150,7 +150,7 @@ function draw() {
 		bgCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 		bgCtx.restore();
 	}
-	// make sure
+
 	if (i >= 629 || resetCanvas == true) {
 		i = 0;
 		resetCanvas = false;
