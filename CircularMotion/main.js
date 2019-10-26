@@ -21,7 +21,7 @@ const origin = new Vector2D(Math.floor(canvasHeight / 2), Math.floor(canvasWidth
 let circles = [];
 FillArrayOfCircles();
 
-let t = helpers.range(0, 6.28, velocity);
+let t = helpers.range(0, 2 * Math.PI, velocity);
 
 // #endregion
 
