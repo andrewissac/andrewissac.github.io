@@ -173,6 +173,7 @@ function draw() {
 		i = 0;
 		resetCanvas = false;
 		bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+		mgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 		fgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 	}
 
