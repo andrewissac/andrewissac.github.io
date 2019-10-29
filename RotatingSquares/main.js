@@ -91,6 +91,7 @@ fgCtx.lineWidth = 2;
 // // #endregion
 
 let i = 0;
+var angles2 = helpers.range(0, Math.PI, delta_angle);
 
 function draw() {
 	bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -116,7 +117,7 @@ function draw() {
 	squares[1].Draw(bgCtx);
 	bgCtx.stroke();
 	bgCtx.beginPath();
-	squares[2].RotateInsideSquare(squares[1].edgeLength, squares[1].alpha + angles[i]);
+	squares[2].RotateInsideSquare(squares[1].edgeLength, squares[1].alpha + angles2[i]);
 	squares[2].Draw(bgCtx);
 	bgCtx.stroke();
 
