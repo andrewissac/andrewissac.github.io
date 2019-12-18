@@ -1,4 +1,5 @@
 import Vector2D from "./Vector2D.js";
+import * as helpers from "./helpers.js";
 
 export default class Square {
 	constructor(center, edgeLength, alphaRadian) {
@@ -74,12 +75,13 @@ export default class Square {
 		}
 	}
 
-	RotateInsideSquare(enclosingSquareLength, alpha) {
-		if (alpha > Math.PI / 2) {
-			alpha -= Math.PI / 2;
-		}
+	RotateInsideSquare(enclosingSquare, alpha) {
 		this.alpha = alpha;
-		this.edgeLength = enclosingSquareLength / (Math.sin(alpha) + Math.cos(alpha));
+		// since the edge length is only depenend on the enclosingSqaure => only look at the difference of enclosing and inner squares
+		// this is sort of look at a static outer square with a rotating inner square
+		const deltaAlpha = alpha - enclosingSquare.alpha;
+		// Math.abs is necessary because else this calculation diverges at pi/2 (has a pole)
+		this.edgeLength = enclosingSquare.edgeLength / Math.abs(Math.sin(deltaAlpha) + Math.cos(deltaAlpha));
 	}
 
 	// this is actually useless, but came up with my own trigonometry calculation,

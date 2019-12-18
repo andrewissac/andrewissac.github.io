@@ -13,9 +13,8 @@ var fadeAwaySpeed = 0.01;
 var myValue = 0;
 var squareOrigin = new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2));
 var enclosingSquareLength = 400;
-var delta_angle = 0.001;
+var delta_angle = 0.002;
 var angles = helpers.range(0, Math.PI / 2, delta_angle);
-var rotationFactor = 1.1;
 var squareCount = 10;
 let squares = [];
 // #endregion
@@ -91,13 +90,13 @@ fgCtx.lineWidth = 2;
 // // #endregion
 
 let i = 0;
-var angles2 = helpers.range(0, Math.PI, delta_angle);
 
 function draw() {
 	bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
 	// enclosing Square
 	bgCtx.beginPath();
+	//squares[0].alpha = Math.PI / 4;
 	squares[0].Draw(bgCtx);
 	bgCtx.stroke();
 
@@ -105,21 +104,12 @@ function draw() {
 		i = 0;
 	}
 
-	// for (let j = 1; j < squares.length; j++) {
-	// 	bgCtx.beginPath();
-	// 	squares[j].RotateInsideSquare(squares[j - 1].edgeLength, squares[j - 1].alpha + j * angles[i]);
-	// 	//squares[j].RotateInsideSquare(squares[j - 1].edgeLength, angles[i] * j * rotationFactor);
-	// 	squares[j].Draw(bgCtx);
-	// 	bgCtx.stroke();
-	// }
-	bgCtx.beginPath();
-	squares[1].RotateInsideSquare(squares[0].edgeLength, squares[0].alpha + angles[i]);
-	squares[1].Draw(bgCtx);
-	bgCtx.stroke();
-	bgCtx.beginPath();
-	squares[2].RotateInsideSquare(squares[1].edgeLength, squares[1].alpha + angles2[i]);
-	squares[2].Draw(bgCtx);
-	bgCtx.stroke();
+	for (let j = 1; j < squares.length; j++) {
+		bgCtx.beginPath();
+		squares[j].RotateInsideSquare(squares[j - 1], squares[j - 1].alpha + angles[i]);
+		squares[j].Draw(bgCtx);
+		bgCtx.stroke();
+	}
 
 	i++;
 	window.requestAnimationFrame(draw);
