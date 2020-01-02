@@ -8,7 +8,7 @@ var canvasHeight = 800;
 var canvasWidth = 800;
 const whiteLineStrokeStyle = "rgba(255, 255, 255, 1.0)";
 var delta_t = 0.015; // determines the speed of the animation
-var t = helpers.range(0, 200, delta_t);
+var t = helpers.range(0, 500, delta_t);
 var lissFigureSize = 100;
 var fadeAway = false;
 var fadeAwaySpeed = 0.01;
@@ -151,7 +151,7 @@ function draw() {
 		bgCtx.restore();
 	}
 
-	if (i >= 629 || resetCanvas == true) {
+	if (i >= 2 * 629 || resetCanvas == true) {
 		i = 0;
 		resetCanvas = false;
 		bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);

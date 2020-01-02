@@ -6,14 +6,12 @@ import Vector2D from "../Utils/Vector2D.js";
 var canvasHeight = 800;
 var canvasWidth = 800;
 const whiteLineStrokeStyle = "rgba(255, 255, 255, 1.0)";
-var fadeAway = false;
-var liveResetCanvas = false;
 var resetCanvas = false;
-var fadeAwaySpeed = 0.01;
-var myValue = 0;
+var rainbowColorsEnabled = true;
+var hue = 0;
 var squareOrigin = new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2));
 var enclosingSquareLength = 400;
-var delta_angle = 0.002;
+var delta_angle = 0.005;
 var angles = helpers.range(0, Math.PI / 2, delta_angle);
 var squareCount = 10;
 let squares = [];
@@ -37,39 +35,56 @@ backgroundCanvas.height = canvasHeight;
 var bgCtx = backgroundCanvas.getContext("2d");
 bgCtx.strokeStyle = whiteLineStrokeStyle;
 bgCtx.lineWidth = 2;
-var foregroundCanvas = document.getElementById("foregroundCanvas");
-foregroundCanvas.width = canvasWidth;
-foregroundCanvas.height = canvasHeight;
-var fgCtx = foregroundCanvas.getContext("2d");
-fgCtx.strokeStyle = whiteLineStrokeStyle;
-fgCtx.lineWidth = 2;
 // #endregion
 
 // // #region Inputs
 // // #region slider
-// var mySlider = document.getElementById("");
-// mySlider.value = myValue;
-// var mySliderValue = document.getElementById("");
-// mySliderValue.innerHTML = mySlider.value; // Display the default slider value
+var rotationSpeedSlider = document.getElementById("rotationSpeedSlider");
+rotationSpeedSlider.value = delta_angle;
+var rotationSpeedValue = document.getElementById("rotationSpeedValue");
+rotationSpeedValue.innerHTML = Math.floor(rotationSpeedSlider.value * 10000); // Display the default slider value
 
-// // Update the current slider value (each time you drag the slider handle)
-// mySlider.oninput = function() {
-// 	mySliderValue.innerHTML = this.value;
-// 	myValue = this.value;
-// 	if (liveResetCanvas) {
-// 		resetCanvas = true;
-// 	}
-// };
+// Update the current slider value (each time you drag the slider handle)
+rotationSpeedSlider.oninput = function() {
+	rotationSpeedValue.innerHTML = Math.floor(this.value * 10000);
+	delta_angle = this.value;
+	angles = helpers.range(0, Math.PI / 2, delta_angle);
+};
+
+var squareCountSlider = document.getElementById("squareCountSlider");
+squareCountSlider.value = squareCount;
+var squareCountValue = document.getElementById("squareCountValue");
+squareCountValue.innerHTML = squareCountSlider.value; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+squareCountSlider.oninput = function() {
+	squareCountValue.innerHTML = this.value;
+	squareCount = this.value;
+	ClearAndAddSquaresToArray();
+};
+
+var baseColorSlider = document.getElementById("baseColorSlider");
+baseColorSlider.value = hue;
+var baseColorValue = document.getElementById("baseColorValue");
+baseColorValue.innerHTML = baseColorSlider.value; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+baseColorSlider.oninput = function() {
+	baseColorValue.innerHTML = this.value;
+	hue = this.value;
+	const rainbowColorStyle = "hsl(" + helpers.RadianToDegree(helpers.DegreeToRadian(hue)) + ", 100%,  70%)";
+	bgCtx.strokeStyle = rainbowColorStyle;
+};
 // // #endregion
 
-// // #region Checkbox
-// var myCheckbox = document.getElementById("");
-// myCheckbox.checked = myBool;
+// #region Checkbox
+var rainbowColorCheckbox = document.getElementById("rainbowColorCheckbox");
+rainbowColorCheckbox.checked = rainbowColorsEnabled;
 
-// myCheckbox.onclick = function() {
-// 	myBool = this.checked;
-// };
-// // #endregion
+rainbowColorCheckbox.onclick = function() {
+	rainbowColorsEnabled = this.checked;
+};
+// #endregion
 
 // // #region liveReset Checkbox
 // var liveResetCheckbox = document.getElementById("liveResetCheckbox");
@@ -80,13 +95,13 @@ fgCtx.lineWidth = 2;
 // };
 // // #endregion
 
-// // #region reset canvas button
-// var resetCanvasButton = document.getElementById("resetCanvasButton");
+// #region reset canvas button
+var resetCanvasButton = document.getElementById("resetCanvasButton");
 
-// resetCanvasButton.onclick = function() {
-// 	resetCanvas = true;
-// };
-// // #endregion
+resetCanvasButton.onclick = function() {
+	resetCanvas = true;
+};
+// #endregion
 // // #endregion
 
 let i = 0;
@@ -94,22 +109,37 @@ let i = 0;
 function draw() {
 	bgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-	// enclosing Square
-	bgCtx.beginPath();
-	//squares[0].alpha = Math.PI / 4;
-	squares[0].Draw(bgCtx);
-	bgCtx.stroke();
-
-	if (i > angles.length) {
+	if (i > angles.length || resetCanvas) {
 		i = 0;
+		resetCanvas = false;
 	}
 
 	for (let j = 1; j < squares.length; j++) {
 		bgCtx.beginPath();
 		squares[j].RotateInsideSquare(squares[j - 1], squares[j - 1].alpha + angles[i]);
+		bgCtx.save();
+		if (rainbowColorsEnabled) {
+			const rainbowColorStyle =
+				"hsl(" + helpers.RadianToDegree(squares[j].alpha / 2 + helpers.DegreeToRadian(hue)) + ", 100%,  70%)";
+			bgCtx.strokeStyle = rainbowColorStyle;
+		}
+
 		squares[j].Draw(bgCtx);
 		bgCtx.stroke();
+		bgCtx.restore();
 	}
+
+	// enclosing Square
+	bgCtx.beginPath();
+	bgCtx.save();
+	if (rainbowColorsEnabled) {
+		const rainbowColorStyle =
+			"hsl(" + helpers.RadianToDegree(squares[1].alpha / 2 + helpers.DegreeToRadian(hue)) + ", 100%,  70%)";
+		bgCtx.strokeStyle = rainbowColorStyle;
+	}
+	squares[0].Draw(bgCtx);
+	bgCtx.stroke();
+	bgCtx.restore();
 
 	i++;
 	window.requestAnimationFrame(draw);

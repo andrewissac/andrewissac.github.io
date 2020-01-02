@@ -22,9 +22,29 @@
 	</head>
 	<body>
 		<a href="../index.html">Go back to mainpage</a>
+		<div class="horizontalDiv">
+            <div>
+                <input type="range" min="0.0001" max="0.01" step="0.0001" class="slider" id="rotationSpeedSlider"></input>
+                <p>rotation speed: <span id="rotationSpeedValue"></span></p>
+			</div>
+			<div>
+                <input type="range" min="2" max="30" step="1" class="slider" id="squareCountSlider"></input>
+                <p>square count: <span id="squareCountValue"></span></p>
+			</div>
+			<div>
+                <input type="range" min="0" max="360" step="1" class="slider" id="baseColorSlider"></input>
+                <p>base color <span id="baseColorValue"></span></p>
+            </div>
+            <div>
+                <input type="checkbox" id="rainbowColorCheckbox"></input>
+                <label>Enable rainbow colors</label>
+            </div>
+            <div>
+                <button id="resetCanvasButton">Manual canvas reset</button>
+            </div>
+        </div>
 		<div id="canvasContainer">
 			<canvas id="backgroundCanvas" style="background-color: black; position:absolute; z-index: 1"></canvas>
-			<canvas id="foregroundCanvas" style="background-color: transparent; position:absolute; z-index: 2"></canvas>
 		</div>
 		<script type="module" src="main.js"></script>
 	</body>
