@@ -31,7 +31,7 @@ export default class Vector2D {
 		this.length = this.GetLength();
 	}
 
-	UpdatePosition(x, y) {
+	Update(x, y) {
 		this.x = x;
 		this.y = y;
 		this.length = this.GetLength();
