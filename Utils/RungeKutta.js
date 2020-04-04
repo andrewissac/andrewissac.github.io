@@ -54,7 +54,7 @@ function CalcGravAcceleration(targetParticleIndex, particles) {
 }
 
 export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt) {
-	let initial = new Particle(new Vector2D(0, 0), new Vector2D(0, 0), 1);
+	let initial = new Particle(new Vector2D(0, 0), new Vector2D(0, 0), 1, 1);
 	initial = particles[targetParticleIndex].DeepCopy();
 	let tempParticles = [];
 	particles.forEach(particle => {
@@ -81,7 +81,12 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt) {
 	let y2 = initial.position.y + 0.5 * vy1 * dt;
 	let vx2 = initial.velocity.x + 0.5 * ax1 * dt;
 	let vy2 = initial.velocity.y + 0.5 * ay1 * dt;
-	tempParticles[targetParticleIndex] = new Particle(new Vector2D(x2, y2), new Vector2D(vx2, vy2), initial.mass);
+	tempParticles[targetParticleIndex] = new Particle(
+		new Vector2D(x2, y2),
+		new Vector2D(vx2, vy2),
+		initial.radius,
+		initial.mass
+	);
 	accel = CalcGravAcceleration(targetParticleIndex, tempParticles);
 	let ax2 = accel.x;
 	let ay2 = accel.y;
@@ -97,7 +102,12 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt) {
 	let y3 = initial.position.y + 0.5 * vy2 * dt;
 	let vx3 = initial.velocity.x + 0.5 * ax2 * dt;
 	let vy3 = initial.velocity.y + 0.5 * ay2 * dt;
-	tempParticles[targetParticleIndex] = new Particle(new Vector2D(x3, y3), new Vector2D(vx3, vy3), initial.mass);
+	tempParticles[targetParticleIndex] = new Particle(
+		new Vector2D(x3, y3),
+		new Vector2D(vx3, vy3),
+		initial.radius,
+		initial.mass
+	);
 	accel = CalcGravAcceleration(targetParticleIndex, tempParticles);
 	let ax3 = accel.x;
 	let ay3 = accel.y;
@@ -106,7 +116,12 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt) {
 	let y4 = initial.position.y + vy3 * dt;
 	let vx4 = initial.velocity.x + ax3 * dt;
 	let vy4 = initial.velocity.y + ay3 * dt;
-	tempParticles[targetParticleIndex] = new Particle(new Vector2D(x4, y4), new Vector2D(vx4, vy4), initial.mass);
+	tempParticles[targetParticleIndex] = new Particle(
+		new Vector2D(x4, y4),
+		new Vector2D(vx4, vy4),
+		initial.radius,
+		initial.mass
+	);
 	accel = CalcGravAcceleration(targetParticleIndex, tempParticles);
 	let ax4 = accel.x;
 	let ay4 = accel.y;
@@ -116,5 +131,5 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt) {
 	let vxfinal = initial.velocity.x + (1 / 6) * (ax1 + 2 * ax2 + 2 * ax3 + ax4) * dt;
 	let vyfinal = initial.velocity.y + (1 / 6) * (ay1 + 2 * ay2 + 2 * ay3 + ay4) * dt;
 
-	return new Particle(new Vector2D(xfinal, yfinal), new Vector2D(vxfinal, vyfinal), initial.mass);
+	return new Particle(new Vector2D(xfinal, yfinal), new Vector2D(vxfinal, vyfinal), initial.radius, initial.mass);
 }

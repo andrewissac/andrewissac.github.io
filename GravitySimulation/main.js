@@ -17,19 +17,15 @@ var dt = 0.1;
 var t = 0;
 
 var particles = [];
-// particles.push(new Particle(new Vector2D(50, 150), new Vector2D(0, 0), 500));
-// particles.push(new Particle(new Vector2D(400, 400), new Vector2D(0, 0), 700));
-// particles.push(new Particle(new Vector2D(250, 300), new Vector2D(0, 0), 1000));
-// particles.push(new Particle(new Vector2D(300, 200), new Vector2D(0, 0), 400));
-// particles.push(new Particle(new Vector2D(300, 250), new Vector2D(0, 0), 400));
+// particles.push(new Particle(new Vector2D(50, 150), new Vector2D(0, 0), 10, 500));
 
 for (let i = 0; i < 100; i++) {
-	particles.push(Particle.GenerateRandomParticle(1, canvasWidth, 1, canvasHeight, -10, 10, -10, 10, 1, 1));
+	particles.push(Particle.GenerateRandomParticle(1, canvasWidth, 1, canvasHeight, -10, 10, -10, 10, 1, 6, 1, 10));
 }
 
 // sun
 particles.push(
-	new Particle(new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)), new Vector2D(0, 0), 1000)
+	new Particle(new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)), new Vector2D(0, 0), 10, 1000)
 );
 
 // #endregion
@@ -59,19 +55,20 @@ resetCanvasButton.onclick = function() {
 // #endregion
 // #endregion
 
-let i = 0;
-
 function draw() {
 	fgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 	if (resetCanvas) {
 		particles = [];
 		for (let i = 0; i < 100; i++) {
-			particles.push(Particle.GenerateRandomParticle(1, canvasWidth, 1, canvasHeight, -10, 10, -10, 10, 1, 1));
+			particles.push(
+				Particle.GenerateRandomParticle(1, canvasWidth, 1, canvasHeight, -10, 10, -10, 10, 1, 6, 1, 10)
+			);
 		}
 		particles.push(
 			new Particle(
 				new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)),
 				new Vector2D(0, 0),
+				10,
 				1000
 			)
 		);
@@ -83,28 +80,66 @@ function draw() {
 			tempParticles.push(RungeKutta.RK4_ParticlesInGravField(k, particles, dt));
 		}
 
-		for (let j = 0; j < particles.length; j++) {
-			particles[j] = tempParticles[j];
+		for (let i = 0; i < tempParticles.length; i++) {
+			for (let k = 0; k < tempParticles.length; k++) {
+				if (i != k) {
+					if (tempParticles[i].CollidedWith(tempParticles[k])) {
+						const massFac1 = (2 * tempParticles[k].mass) / (tempParticles[i].mass + tempParticles[k].mass);
+						const normalFac1 =
+							(massFac1 *
+								tempParticles[i].velocity
+									.Add(tempParticles[k].velocity.Negative())
+									.DotProduct(tempParticles[i].position.Add(tempParticles[k].position.Negative()))) /
+							tempParticles[i].position.DistanceTo(tempParticles[k].position) ** 2;
+						tempParticles[i].velocity = tempParticles[i].velocity.Add(
+							tempParticles[i].position
+								.Add(tempParticles[k].position.Negative())
+								.Multiply(-1 * normalFac1)
+						);
+
+						const massFac2 = (2 * tempParticles[i].mass) / (tempParticles[i].mass + tempParticles[k].mass);
+						const normalFac2 =
+							(massFac2 *
+								tempParticles[k].velocity
+									.Add(tempParticles[i].velocity.Negative())
+									.DotProduct(tempParticles[k].position.Add(tempParticles[i].position.Negative()))) /
+							tempParticles[k].position.DistanceTo(tempParticles[i].position) ** 2;
+						tempParticles[k].velocity = tempParticles[k].velocity.Add(
+							tempParticles[k].position
+								.Add(tempParticles[i].position.Negative())
+								.Multiply(-1 * normalFac2)
+						);
+					}
+				}
+			}
 		}
+
+		for (let j = 0; j < particles.length; j++) {
+			particles[j] = tempParticles[j].DeepCopy();
+		}
+
+		// particles.forEach(particle => {
+		// 	if (particle.position.x < 0 && particle.mass > 8) {
+		// 		particle.position.x = canvasWidth;
+		// 	}
+		// 	if (particle.position.x > canvasWidth && particle.mass > 5) {
+		// 		particle.position.x = 0;
+		// 	}
+		// 	if (particle.position.y < 0 && particle.mass > 5) {
+		// 		particle.position.y = canvasHeight;
+		// 	}
+		// 	if (particle.position.y > canvasHeight && particle.mass > 5) {
+		// 		particle.position.y = 0;
+		// 	}
+		// });
 
 		// particle = new Particle(new Vector2D(0, 0), new Vector2D(20, 30), 1);
 		// particle = RungeKutta.RK4_ParticlesInGravField(particle1, particles, dt);
 
 		particles.forEach(particle => {
-			fgCtx.beginPath();
-			helpers.drawFilledCircle(fgCtx, particle.position, 3, whiteLineStrokeStyle, whiteLineStrokeStyle);
-			fgCtx.fill();
+			particle.Draw(fgCtx, whiteLineStrokeStyle, whiteLineStrokeStyle);
 		});
-		fgCtx.beginPath();
-		helpers.drawFilledCircle(
-			fgCtx,
-			particles[particles.length - 1].position,
-			10,
-			"rgba(255, 255, 0, 1.0)",
-			"rgba(255, 255, 0, 1.0)"
-		);
-		fgCtx.fill();
-		// fgCtx.stroke();
+		particles[particles.length - 1].Draw(fgCtx, "rgba(255, 255, 0, 1.0)", "rgba(255, 255, 0, 1.0)");
 	} else {
 		t = 0;
 	}

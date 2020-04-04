@@ -2,9 +2,10 @@ import * as helpers from "../Utils/helpers.js";
 import Vector2D from "../Utils/Vector2D.js";
 
 export default class Particle {
-	constructor(position, velocity, mass = 1) {
+	constructor(position, velocity, radius = 3, mass = 1) {
 		this._position = new Vector2D(position.x, position.y);
 		this._velocity = new Vector2D(velocity.x, velocity.y);
+		this._radius = radius;
 		this._mass = mass;
 	}
 
@@ -32,16 +33,55 @@ export default class Particle {
 		this._mass = newMass;
 	}
 
+	get radius() {
+		return this._radius;
+	}
+
+	set radius(newRadius) {
+		this._radius = newRadius;
+	}
+
+	CollidedWith(otherParticle) {
+		if (this.position.DistanceTo(otherParticle.position) <= this.radius + otherParticle.radius) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	Draw(context, strokeStyle, fillStyle) {
+		context.beginPath();
+		context.fillStyle = fillStyle;
+		context.strokeStyle = strokeStyle;
+		context.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
+		context.stroke();
+		context.fill();
+	}
+
 	DeepCopy() {
 		let particle = new Particle(
 			new Vector2D(this.position.x, this.position.y),
 			new Vector2D(this.velocity.x, this.velocity.y),
+			this.radius,
 			this.mass
 		);
 		return particle;
 	}
 
-	static GenerateRandomParticle(xPosMin, xPosMax, yPosMin, yPosMax, vxMin, vxMax, vyMin, vyMax, massMin, massMax) {
+	static GenerateRandomParticle(
+		xPosMin,
+		xPosMax,
+		yPosMin,
+		yPosMax,
+		vxMin,
+		vxMax,
+		vyMin,
+		vyMax,
+		radiusMin,
+		radiusMax,
+		massMin,
+		massMax
+	) {
 		return new Particle(
 			new Vector2D(
 				helpers.GetRandomGaussianNormal_BoxMuller(xPosMin, xPosMax, 1),
@@ -51,6 +91,7 @@ export default class Particle {
 				helpers.GetRandomGaussianNormal_BoxMuller(vxMin, vxMax, 1),
 				helpers.GetRandomGaussianNormal_BoxMuller(vyMin, vyMax, 1)
 			),
+			helpers.GetRandomGaussianNormal_BoxMuller(radiusMin, radiusMax, 1),
 			helpers.GetRandomGaussianNormal_BoxMuller(massMin, massMax, 1)
 		);
 	}
