@@ -13,19 +13,34 @@ var resetCanvas = false;
 var fadeAwaySpeed = 0.01;
 var myValue = 0;
 
-var dt = 0.1;
+var particleCount = 50;
+var dt = 0.01;
 var t = 0;
 
-var particles = [];
-// particles.push(new Particle(new Vector2D(50, 150), new Vector2D(0, 0), 10, 500));
+const WallBehaviorEnum = Object.freeze({ none: 1, infinite: 2, collision: 3 });
+let wallBehavior = WallBehaviorEnum.none;
+let particleCollisionsEnabled = true;
 
-for (let i = 0; i < 100; i++) {
-	particles.push(Particle.GenerateRandomParticle(1, canvasWidth, 1, canvasHeight, -10, 10, -10, 10, 1, 6, 1, 10));
-}
+var particles = Particle.GenerateNRandomParticles(
+	particleCount,
+	1,
+	canvasWidth,
+	1,
+	canvasHeight,
+	-10,
+	10,
+	-10,
+	10,
+	1,
+	15,
+	1,
+	10
+);
+// particles.push(new Particle(new Vector2D(50, 150), new Vector2D(0, 0), 10, 500));
 
 // sun
 particles.push(
-	new Particle(new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)), new Vector2D(0, 0), 10, 1000)
+	new Particle(new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)), new Vector2D(0, 0), 10, 10000)
 );
 
 // #endregion
@@ -53,13 +68,55 @@ resetCanvasButton.onclick = function() {
 	resetCanvas = true;
 };
 // #endregion
+
+// #region no walls radio button
+var noWallsRadiobutton = document.getElementById("noWallsRadiobutton");
+noWallsRadiobutton.checked = true;
+
+noWallsRadiobutton.onclick = function() {
+	if (this.checked) {
+		wallBehavior = WallBehaviorEnum.none;
+	}
+};
+// #endregion
+
+// #region infinite walls radio button
+var infiniteWallsRadiobutton = document.getElementById("infiniteWallsRadiobutton");
+infiniteWallsRadiobutton.checked = false;
+
+infiniteWallsRadiobutton.onclick = function() {
+	if (this.checked) {
+		wallBehavior = WallBehaviorEnum.infinite;
+	}
+};
+// #endregion
+
+// #region infinite walls radio button
+var collisionWallsRadiobutton = document.getElementById("collisionWallsRadiobutton");
+collisionWallsRadiobutton.checked = false;
+
+collisionWallsRadiobutton.onclick = function() {
+	if (this.checked) {
+		wallBehavior = WallBehaviorEnum.collision;
+	}
+};
+// #endregion
+
+// #region particle collision checkbox
+var particleCollisionCheckbox = document.getElementById("particleCollisionCheckbox");
+particleCollisionCheckbox.checked = particleCollisionsEnabled;
+
+particleCollisionCheckbox.onclick = function() {
+	particleCollisionsEnabled = this.checked;
+};
+// //#endregion
 // #endregion
 
 function draw() {
 	fgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 	if (resetCanvas) {
 		particles = [];
-		for (let i = 0; i < 100; i++) {
+		for (let i = 0; i < particleCount; i++) {
 			particles.push(
 				Particle.GenerateRandomParticle(1, canvasWidth, 1, canvasHeight, -10, 10, -10, 10, 1, 6, 1, 10)
 			);
@@ -69,17 +126,18 @@ function draw() {
 				new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)),
 				new Vector2D(0, 0),
 				10,
-				1000
+				10000
 			)
 		);
 		resetCanvas = false;
 	}
-	if (t < 10) {
-		let tempParticles = [];
-		for (let k = 0; k < particles.length; k++) {
-			tempParticles.push(RungeKutta.RK4_ParticlesInGravField(k, particles, dt));
-		}
+	let tempParticles = [];
+	for (let k = 0; k < particles.length; k++) {
+		tempParticles.push(RungeKutta.RK4_ParticlesInGravField(k, particles, dt));
+	}
 
+	// Collision handling
+	if (particleCollisionsEnabled) {
 		for (let i = 0; i < tempParticles.length; i++) {
 			for (let k = 0; k < tempParticles.length; k++) {
 				if (i != k) {
@@ -113,37 +171,51 @@ function draw() {
 				}
 			}
 		}
-
-		for (let j = 0; j < particles.length; j++) {
-			particles[j] = tempParticles[j].DeepCopy();
-		}
-
-		// particles.forEach(particle => {
-		// 	if (particle.position.x < 0 && particle.mass > 8) {
-		// 		particle.position.x = canvasWidth;
-		// 	}
-		// 	if (particle.position.x > canvasWidth && particle.mass > 5) {
-		// 		particle.position.x = 0;
-		// 	}
-		// 	if (particle.position.y < 0 && particle.mass > 5) {
-		// 		particle.position.y = canvasHeight;
-		// 	}
-		// 	if (particle.position.y > canvasHeight && particle.mass > 5) {
-		// 		particle.position.y = 0;
-		// 	}
-		// });
-
-		// particle = new Particle(new Vector2D(0, 0), new Vector2D(20, 30), 1);
-		// particle = RungeKutta.RK4_ParticlesInGravField(particle1, particles, dt);
-
-		particles.forEach(particle => {
-			particle.Draw(fgCtx, whiteLineStrokeStyle, whiteLineStrokeStyle);
-		});
-		particles[particles.length - 1].Draw(fgCtx, "rgba(255, 255, 0, 1.0)", "rgba(255, 255, 0, 1.0)");
-	} else {
-		t = 0;
 	}
-	t += dt;
+
+	for (let j = 0; j < particles.length; j++) {
+		particles[j] = tempParticles[j].DeepCopy();
+	}
+
+	// Wall behavior handling
+	switch (wallBehavior) {
+		case WallBehaviorEnum.none: {
+			break;
+		}
+		case WallBehaviorEnum.infinite: {
+			particles.forEach(particle => {
+				if (particle.position.x <= 0) {
+					particle.position.x = canvasWidth;
+				}
+				if (particle.position.x >= canvasWidth) {
+					particle.position.x = 0;
+				}
+				if (particle.position.y <= 0) {
+					particle.position.y = canvasHeight;
+				}
+				if (particle.position.y >= canvasHeight) {
+					particle.position.y = 0;
+				}
+			});
+			break;
+		}
+		case WallBehaviorEnum.collision: {
+			particles.forEach(particle => {
+				if (particle.position.x <= particle.radius || particle.position.x >= canvasWidth - particle.radius) {
+					particle.velocity.x = -1 * particle.velocity.x;
+				}
+				if (particle.position.y <= particle.radius || particle.position.y >= canvasHeight - particle.radius) {
+					particle.velocity.y = -1 * particle.velocity.y;
+				}
+			});
+			break;
+		}
+	}
+
+	particles.forEach(particle => {
+		particle.Draw(fgCtx, whiteLineStrokeStyle, whiteLineStrokeStyle);
+	});
+	particles[particles.length - 1].Draw(fgCtx, "rgba(255, 255, 0, 1.0)", "rgba(255, 255, 0, 1.0)");
 	window.requestAnimationFrame(draw);
 }
 

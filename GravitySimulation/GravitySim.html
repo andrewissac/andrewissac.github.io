@@ -4,6 +4,7 @@
 		<link rel="stylesheet" type="text/css" href="../CSS/Slider.css" />
 		<link rel="stylesheet" type="text/css" href="../CSS/fontStyles.css" />
 		<link rel="stylesheet" type="text/css" href="../CSS/horizontalDiv.css" />
+		<link rel="stylesheet" type="text/css" href="../CSS/radioButton.css" />
 		<style>
 			input[type="checkbox"],
 			label {
@@ -24,9 +25,37 @@
 		<div style="margin-bottom: 30px">
 			<a href="../index.html">Go back to mainpage</a>
 		</div>
-		<div class="horizontalDiv">
+		<div class="horizontalDiv" style="margin-bottom: 30px">
 			<div>
 				<button id="resetCanvasButton">Manual canvas reset</button>
+			</div>
+			<div style="margin-left: 30px">
+				<label
+					><input type="radio" id="noWallsRadiobutton" name="wallBehave" value="WallBehaviorEnum.none" /> no
+					walls</label
+				><br />
+				<label
+					><input
+						type="radio"
+						id="infiniteWallsRadiobutton"
+						name="wallBehave"
+						value="WallBehaviorEnum.infinite"
+					/>
+					infinite walls</label
+				><br />
+				<label
+					><input
+						type="radio"
+						id="collisionWallsRadiobutton"
+						name="wallBehave"
+						value="WallBehaviorEnum.collision"
+					/>
+					collision walls</label
+				><br />
+			</div>
+			<div style="margin-left: 30px;">
+				<input type="checkbox" id="particleCollisionCheckbox"></input>
+                <label>Enable elastic particle collisions</label>
 			</div>
 		</div>
 		<div id="canvasContainer">
