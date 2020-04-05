@@ -96,6 +96,10 @@ export default class Particle {
 		);
 	}
 
+	Overlaps(otherParticle) {
+		return this.position.DistanceTo(otherParticle.position) < this.radius + otherParticle.radius;
+	}
+
 	static GenerateNRandomParticles(
 		N,
 		xPosMin,
@@ -114,25 +118,29 @@ export default class Particle {
 		let particles = [];
 		let i = 0;
 		while (i < N) {
-			let particle = new Particle(
-				new Vector2D(
-					helpers.GetRandomGaussianNormal_BoxMuller(xPosMin, xPosMax, 1),
-					helpers.GetRandomGaussianNormal_BoxMuller(yPosMin, yPosMax, 1)
-				),
-				new Vector2D(
-					helpers.GetRandomGaussianNormal_BoxMuller(vxMin, vxMax, 1),
-					helpers.GetRandomGaussianNormal_BoxMuller(vyMin, vyMax, 1)
-				),
-				helpers.GetRandomGaussianNormal_BoxMuller(radiusMin, radiusMax, 1),
-				helpers.GetRandomGaussianNormal_BoxMuller(massMin, massMax, 1)
+			let particle = this.GenerateRandomParticle(
+				xPosMin,
+				xPosMax,
+				yPosMin,
+				yPosMax,
+				vxMin,
+				vxMax,
+				vyMin,
+				vyMax,
+				radiusMin,
+				radiusMax,
+				massMin,
+				massMax
 			);
-			let twoParticlesCoincide = false;
+			// check if no other particle overlap with the to be added particle
+			let twoParticlesOverlap = false;
 			for (let j = 0; j < particles.length; j++) {
-				if (particle.position.DistanceTo(particles[j].position) < particle.radius + particles[j].radius) {
-					twoParticlesCoincide = true;
+				if (particle.Overlaps(particles[j])) {
+					twoParticlesOverlap = true;
+					break;
 				}
 			}
-			if (!twoParticlesCoincide) {
+			if (!twoParticlesOverlap) {
 				particles.push(particle);
 				i++;
 			}

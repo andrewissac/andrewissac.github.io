@@ -13,35 +13,58 @@ var resetCanvas = false;
 var fadeAwaySpeed = 0.01;
 var myValue = 0;
 
-var particleCount = 50;
+var particleCount = 100;
+var particles = [];
 var dt = 0.01;
-var t = 0;
 
 const WallBehaviorEnum = Object.freeze({ none: 1, infinite: 2, collision: 3 });
-let wallBehavior = WallBehaviorEnum.none;
+let wallBehavior = WallBehaviorEnum.collision;
 let particleCollisionsEnabled = true;
 
-var particles = Particle.GenerateNRandomParticles(
-	particleCount,
-	1,
-	canvasWidth,
-	1,
-	canvasHeight,
-	-10,
-	10,
-	-10,
-	10,
-	1,
-	15,
-	1,
-	10
-);
-// particles.push(new Particle(new Vector2D(50, 150), new Vector2D(0, 0), 10, 500));
+// #region random particle parameters
+let xPosMin = 1;
+let xPosMax = canvasWidth;
+let yPosMin = 1;
+let yPosMax = canvasHeight;
+let vxMin = -10;
+let vxMax = 10;
+let vyMin = -10;
+let vyMax = 10;
+let radiusMin = 1;
+let radiusMax = 5;
+let massMin = 1;
+let massMax = 10;
+// #endregion
 
-// sun
-particles.push(
-	new Particle(new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)), new Vector2D(0, 0), 10, 10000)
-);
+function GenerateRandomizedParticles(N) {
+	particles = Particle.GenerateNRandomParticles(
+		particleCount,
+		xPosMin,
+		xPosMax,
+		yPosMin,
+		yPosMax,
+		vxMin,
+		vxMax,
+		vyMin,
+		vyMax,
+		radiusMin,
+		radiusMax,
+		massMin,
+		massMax
+	);
+
+	// sun
+	particles.push(
+		new Particle(
+			new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)),
+			new Vector2D(0, 0),
+			10,
+			10000
+		)
+	);
+}
+
+GenerateRandomizedParticles(particleCount);
 
 // #endregion
 
@@ -71,14 +94,13 @@ resetCanvasButton.onclick = function() {
 
 // #region no walls radio button
 var noWallsRadiobutton = document.getElementById("noWallsRadiobutton");
-noWallsRadiobutton.checked = true;
+noWallsRadiobutton.checked = false;
 
 noWallsRadiobutton.onclick = function() {
 	if (this.checked) {
 		wallBehavior = WallBehaviorEnum.none;
 	}
 };
-// #endregion
 
 // #region infinite walls radio button
 var infiniteWallsRadiobutton = document.getElementById("infiniteWallsRadiobutton");
@@ -93,7 +115,7 @@ infiniteWallsRadiobutton.onclick = function() {
 
 // #region infinite walls radio button
 var collisionWallsRadiobutton = document.getElementById("collisionWallsRadiobutton");
-collisionWallsRadiobutton.checked = false;
+collisionWallsRadiobutton.checked = true;
 
 collisionWallsRadiobutton.onclick = function() {
 	if (this.checked) {
@@ -109,26 +131,71 @@ particleCollisionCheckbox.checked = particleCollisionsEnabled;
 particleCollisionCheckbox.onclick = function() {
 	particleCollisionsEnabled = this.checked;
 };
-// //#endregion
+// #endregion
+
+// #region particle count slider
+var particleCountSlider = document.getElementById("particleCountSlider");
+particleCountSlider.value = particleCount;
+var particleCountValue = document.getElementById("particleCountValue");
+particleCountValue.innerHTML = particleCountSlider.value; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+particleCountSlider.oninput = function() {
+	particleCountValue.innerHTML = this.value;
+	while (particleCount != this.value) {
+		if (particleCount > this.value) {
+			particles.shift();
+			particleCount--;
+		} else if (particleCount < this.value) {
+			let particle = Particle.GenerateRandomParticle(
+				xPosMin,
+				xPosMax,
+				yPosMin,
+				yPosMax,
+				vxMin,
+				vxMax,
+				vyMin,
+				vyMax,
+				radiusMin,
+				radiusMax,
+				massMin,
+				massMax
+			);
+			// check if no other particle overlap with the to be added particle
+			let twoParticlesOverlap = false;
+			for (let j = 0; j < particles.length; j++) {
+				if (particle.Overlaps(particles[j])) {
+					twoParticlesOverlap = true;
+					break;
+				}
+			}
+			if (!twoParticlesOverlap) {
+				particles.unshift(particle);
+				particleCount++;
+			}
+		}
+	}
+};
+// #endregion
+
+// #region timestep slider
+var timeStepSlider = document.getElementById("timeStepSlider");
+timeStepSlider.value = dt;
+var timeStepValue = document.getElementById("timeStepValue");
+timeStepValue.innerHTML = timeStepSlider.value; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+timeStepSlider.oninput = function() {
+	timeStepValue.innerHTML = this.value;
+	dt = this.value;
+};
+// #endregion
 // #endregion
 
 function draw() {
 	fgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 	if (resetCanvas) {
-		particles = [];
-		for (let i = 0; i < particleCount; i++) {
-			particles.push(
-				Particle.GenerateRandomParticle(1, canvasWidth, 1, canvasHeight, -10, 10, -10, 10, 1, 6, 1, 10)
-			);
-		}
-		particles.push(
-			new Particle(
-				new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)),
-				new Vector2D(0, 0),
-				10,
-				10000
-			)
-		);
+		GenerateRandomizedParticles(particleCount);
 		resetCanvas = false;
 	}
 	let tempParticles = [];
