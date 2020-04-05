@@ -184,16 +184,16 @@ function draw() {
 		}
 		case WallBehaviorEnum.infinite: {
 			particles.forEach(particle => {
-				if (particle.position.x <= 0) {
+				if (particle.position.x < 0) {
 					particle.position.x = canvasWidth;
 				}
-				if (particle.position.x >= canvasWidth) {
+				if (particle.position.x > canvasWidth) {
 					particle.position.x = 0;
 				}
-				if (particle.position.y <= 0) {
+				if (particle.position.y < 0) {
 					particle.position.y = canvasHeight;
 				}
-				if (particle.position.y >= canvasHeight) {
+				if (particle.position.y > canvasHeight) {
 					particle.position.y = 0;
 				}
 			});
@@ -201,11 +201,20 @@ function draw() {
 		}
 		case WallBehaviorEnum.collision: {
 			particles.forEach(particle => {
-				if (particle.position.x <= particle.radius || particle.position.x >= canvasWidth - particle.radius) {
-					particle.velocity.x = -1 * particle.velocity.x;
+				if (particle.position.x <= particle.radius) {
+					particle.position.x = particle.radius;
+					particle.velocity.x *= -1;
+				} else if (particle.position.x >= canvasWidth - particle.radius) {
+					particle.position.x = canvasWidth - particle.radius;
+					particle.velocity.x *= -1;
 				}
-				if (particle.position.y <= particle.radius || particle.position.y >= canvasHeight - particle.radius) {
-					particle.velocity.y = -1 * particle.velocity.y;
+
+				if (particle.position.y <= particle.radius) {
+					particle.position.y = particle.radius;
+					particle.velocity.y *= -1;
+				} else if (particle.position.y >= canvasHeight - particle.radius) {
+					particle.velocity.y = canvasHeight - particle.radius;
+					particle.velocity.y *= -1;
 				}
 			});
 			break;
