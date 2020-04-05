@@ -13,6 +13,10 @@ var resetCanvas = false;
 var fadeAwaySpeed = 0.01;
 var myValue = 0;
 
+var stop = false;
+var frameCount = 0;
+var fps, fpsInterval, startTime, now, then, elapsed;
+
 var particleCount = 100;
 var particles = [];
 var dt = 0.01;
@@ -87,7 +91,7 @@ fgCtx.lineWidth = 2;
 // #region reset canvas button
 var resetCanvasButton = document.getElementById("resetCanvasButton");
 
-resetCanvasButton.onclick = function() {
+resetCanvasButton.onclick = function () {
 	resetCanvas = true;
 };
 // #endregion
@@ -96,7 +100,7 @@ resetCanvasButton.onclick = function() {
 var noWallsRadiobutton = document.getElementById("noWallsRadiobutton");
 noWallsRadiobutton.checked = false;
 
-noWallsRadiobutton.onclick = function() {
+noWallsRadiobutton.onclick = function () {
 	if (this.checked) {
 		wallBehavior = WallBehaviorEnum.none;
 	}
@@ -106,7 +110,7 @@ noWallsRadiobutton.onclick = function() {
 var infiniteWallsRadiobutton = document.getElementById("infiniteWallsRadiobutton");
 infiniteWallsRadiobutton.checked = false;
 
-infiniteWallsRadiobutton.onclick = function() {
+infiniteWallsRadiobutton.onclick = function () {
 	if (this.checked) {
 		wallBehavior = WallBehaviorEnum.infinite;
 	}
@@ -117,7 +121,7 @@ infiniteWallsRadiobutton.onclick = function() {
 var collisionWallsRadiobutton = document.getElementById("collisionWallsRadiobutton");
 collisionWallsRadiobutton.checked = true;
 
-collisionWallsRadiobutton.onclick = function() {
+collisionWallsRadiobutton.onclick = function () {
 	if (this.checked) {
 		wallBehavior = WallBehaviorEnum.collision;
 	}
@@ -128,7 +132,7 @@ collisionWallsRadiobutton.onclick = function() {
 var particleCollisionCheckbox = document.getElementById("particleCollisionCheckbox");
 particleCollisionCheckbox.checked = particleCollisionsEnabled;
 
-particleCollisionCheckbox.onclick = function() {
+particleCollisionCheckbox.onclick = function () {
 	particleCollisionsEnabled = this.checked;
 };
 // #endregion
@@ -140,7 +144,7 @@ var particleCountValue = document.getElementById("particleCountValue");
 particleCountValue.innerHTML = particleCountSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
-particleCountSlider.oninput = function() {
+particleCountSlider.oninput = function () {
 	particleCountValue.innerHTML = this.value;
 	while (particleCount != this.value) {
 		if (particleCount > this.value) {
@@ -185,17 +189,39 @@ var timeStepValue = document.getElementById("timeStepValue");
 timeStepValue.innerHTML = timeStepSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
-timeStepSlider.oninput = function() {
+timeStepSlider.oninput = function () {
 	timeStepValue.innerHTML = this.value;
 	dt = this.value;
 };
 // #endregion
+
+// #region fps value
+var fpsValue = document.getElementById("fpsValue");
+fpsValue.innerHTML = fps; // Display the default slider value
+// #endregion
 // #endregion
 
+function startAnimating(fps) {
+	fpsInterval = 1000 / fps;
+	then = Date.now();
+	startTime = then;
+	draw();
+}
+
 function draw() {
-	fgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+	// stop
+	if (stop) {
+		return;
+	}
+
+	// request another frame
+	window.requestAnimationFrame(draw);
+
 	if (resetCanvas) {
 		GenerateRandomizedParticles(particleCount);
+		then = Date.now();
+		startTime = then;
+		frameCount = 0;
 		resetCanvas = false;
 	}
 	let tempParticles = [];
@@ -250,7 +276,7 @@ function draw() {
 			break;
 		}
 		case WallBehaviorEnum.infinite: {
-			particles.forEach(particle => {
+			particles.forEach((particle) => {
 				if (particle.position.x < 0) {
 					particle.position.x = canvasWidth;
 				}
@@ -267,7 +293,7 @@ function draw() {
 			break;
 		}
 		case WallBehaviorEnum.collision: {
-			particles.forEach(particle => {
+			particles.forEach((particle) => {
 				if (particle.position.x <= particle.radius) {
 					particle.position.x = particle.radius;
 					particle.velocity.x *= -1;
@@ -288,11 +314,33 @@ function draw() {
 		}
 	}
 
-	particles.forEach(particle => {
-		particle.Draw(fgCtx, whiteLineStrokeStyle, whiteLineStrokeStyle);
-	});
-	particles[particles.length - 1].Draw(fgCtx, "rgba(255, 255, 0, 1.0)", "rgba(255, 255, 0, 1.0)");
-	window.requestAnimationFrame(draw);
+	// calc elapsed time since last loop
+	now = Date.now();
+	elapsed = now - then;
+
+	// if enough time has elapsed, draw the next frame
+	if (elapsed > fpsInterval) {
+		// Get ready for next frame by setting then=now, but...
+		// Also, adjust for fpsInterval not being multiple of 16.67
+		then = now - (elapsed % fpsInterval);
+
+		fgCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+		// draw stuff here
+		particles.forEach((particle) => {
+			particle.Draw(fgCtx, whiteLineStrokeStyle, whiteLineStrokeStyle);
+		});
+		particles[particles.length - 1].Draw(fgCtx, "rgba(255, 255, 0, 1.0)", "rgba(255, 255, 0, 1.0)");
+
+		// TESTING...Report #seconds since start and achieved fps.
+		var sinceStart = now - startTime;
+		var currentFps = Math.round(Math.round((1000 / (sinceStart / ++frameCount)) * 100) / 100);
+		fpsValue.innerHTML =
+			"Elapsed time= " +
+			Math.round(Math.round((sinceStart / 1000) * 100) / 100) +
+			" s with " +
+			currentFps +
+			" fps.";
+	}
 }
 
-draw();
+startAnimating(200);
