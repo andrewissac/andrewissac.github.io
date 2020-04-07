@@ -28,9 +28,8 @@ export function RK4_2D(r, t, dt, diffEq) {
 	return resultVec;
 }
 
-function CalcGravForce(targetParticleIndex, particles) {
+function CalcGravForce(targetParticleIndex, particles, gravConst) {
 	let forceVec = new Vector2D(0, 0);
-	let G = 1; // gravitational constant = 1 for simplification
 	for (let i = 0; i < particles.length; i++) {
 		if (i != targetParticleIndex) {
 			// TODO: need to prevent distance to be zero!
@@ -42,26 +41,26 @@ function CalcGravForce(targetParticleIndex, particles) {
 				particles[i].position.DistanceTo(particles[targetParticleIndex].position) ** 3;
 		}
 	}
-	forceVec = forceVec.Multiply(G);
+	forceVec = forceVec.Multiply(gravConst);
 	forceVec = forceVec.Multiply(particles[targetParticleIndex].mass);
 	return forceVec;
 }
 
-function CalcGravAcceleration(targetParticleIndex, particles) {
+function CalcGravAcceleration(targetParticleIndex, particles, gravConst) {
 	let forceVec = new Vector2D(0, 0);
-	forceVec = CalcGravForce(targetParticleIndex, particles);
+	forceVec = CalcGravForce(targetParticleIndex, particles, gravConst);
 	return forceVec.Multiply(1 / particles[targetParticleIndex].mass);
 }
 
-export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt) {
+export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt, gravConst) {
 	let initial = new Particle(new Vector2D(0, 0), new Vector2D(0, 0), 1, 1);
 	initial = particles[targetParticleIndex].DeepCopy();
 	let tempParticles = [];
-	particles.forEach(particle => {
+	particles.forEach((particle) => {
 		tempParticles.push(particle.DeepCopy());
 	});
 	let accel = new Vector2D(0, 0);
-	accel = CalcGravAcceleration(targetParticleIndex, particles);
+	accel = CalcGravAcceleration(targetParticleIndex, particles, gravConst);
 
 	let x1 = initial.position.x;
 	let y1 = initial.position.y;
@@ -87,7 +86,7 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt) {
 		initial.radius,
 		initial.mass
 	);
-	accel = CalcGravAcceleration(targetParticleIndex, tempParticles);
+	accel = CalcGravAcceleration(targetParticleIndex, tempParticles, gravConst);
 	let ax2 = accel.x;
 	let ay2 = accel.y;
 
@@ -108,7 +107,7 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt) {
 		initial.radius,
 		initial.mass
 	);
-	accel = CalcGravAcceleration(targetParticleIndex, tempParticles);
+	accel = CalcGravAcceleration(targetParticleIndex, tempParticles, gravConst);
 	let ax3 = accel.x;
 	let ay3 = accel.y;
 
@@ -122,7 +121,7 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt) {
 		initial.radius,
 		initial.mass
 	);
-	accel = CalcGravAcceleration(targetParticleIndex, tempParticles);
+	accel = CalcGravAcceleration(targetParticleIndex, tempParticles, gravConst);
 	let ax4 = accel.x;
 	let ay4 = accel.y;
 

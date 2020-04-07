@@ -7,6 +7,11 @@ export default class Particle {
 		this._velocity = new Vector2D(velocity.x, velocity.y);
 		this._radius = radius;
 		this._mass = mass;
+		if (mass >= 500) {
+			this._isHeavyParticle = true;
+		} else {
+			this._isHeavyParticle = false;
+		}
 	}
 
 	get position() {
@@ -41,12 +46,8 @@ export default class Particle {
 		this._radius = newRadius;
 	}
 
-	CollidedWith(otherParticle) {
-		if (this.position.DistanceTo(otherParticle.position) <= this.radius + otherParticle.radius) {
-			return true;
-		} else {
-			return false;
-		}
+	get isHeavyParticle() {
+		return this._isHeavyParticle;
 	}
 
 	Draw(context, strokeStyle, fillStyle) {
@@ -69,10 +70,10 @@ export default class Particle {
 	}
 
 	static GenerateRandomParticle(
-		xPosMin,
-		xPosMax,
-		yPosMin,
-		yPosMax,
+		xmin,
+		xmax,
+		ymin,
+		ymax,
 		vxMin,
 		vxMax,
 		vyMin,
@@ -82,30 +83,45 @@ export default class Particle {
 		massMin,
 		massMax
 	) {
-		return new Particle(
+		let plusOrMinus1 = Math.random() < 0.5 ? -1 : 1;
+		let plusOrMinus2 = Math.random() < 0.5 ? -1 : 1;
+		// normal distributed variables
+		let particle = new Particle(
 			new Vector2D(
-				helpers.GetRandomGaussianNormal_BoxMuller(xPosMin, xPosMax, 1),
-				helpers.GetRandomGaussianNormal_BoxMuller(yPosMin, yPosMax, 1)
+				helpers.GetRandomGaussianNormal_BoxMuller(xmin, xmax, 1),
+				helpers.GetRandomGaussianNormal_BoxMuller(ymin, ymax, 1)
 			),
 			new Vector2D(
-				helpers.GetRandomGaussianNormal_BoxMuller(vxMin, vxMax, 1),
-				helpers.GetRandomGaussianNormal_BoxMuller(vyMin, vyMax, 1)
+				helpers.GetRandomGaussianNormal_BoxMuller(vxMin, vxMax, 1) * plusOrMinus1,
+				helpers.GetRandomGaussianNormal_BoxMuller(vyMin, vyMax, 1) * plusOrMinus2
 			),
 			helpers.GetRandomGaussianNormal_BoxMuller(radiusMin, radiusMax, 1),
 			helpers.GetRandomGaussianNormal_BoxMuller(massMin, massMax, 1)
 		);
+		// uniform distributed variables
+		// let particle = new Particle(
+		// 	new Vector2D(helpers.GetRandomIntFromRange(xmin, xmax), helpers.GetRandomIntFromRange(ymin, ymax)),
+		// 	new Vector2D(
+		// 		helpers.GetRandomIntFromRange(vxMin, vxMax) * plusOrMinus1,
+		// 		helpers.GetRandomIntFromRange(vyMin, vyMax) * plusOrMinus2
+		// 	),
+		// 	helpers.GetRandomIntFromRange(radiusMin, radiusMax),
+		// 	helpers.GetRandomIntFromRange(massMin, massMax)
+		// );
+		return particle;
 	}
 
 	Overlaps(otherParticle) {
 		return this.position.DistanceTo(otherParticle.position) < this.radius + otherParticle.radius;
 	}
 
-	static GenerateNRandomParticles(
+	static AddNRandomParticles(
+		particleList,
 		N,
-		xPosMin,
-		xPosMax,
-		yPosMin,
-		yPosMax,
+		xmin,
+		xmax,
+		ymin,
+		ymax,
 		vxMin,
 		vxMax,
 		vyMin,
@@ -116,13 +132,14 @@ export default class Particle {
 		massMax
 	) {
 		let particles = [];
+		particles = particles.concat(particleList);
 		let i = 0;
 		while (i < N) {
 			let particle = this.GenerateRandomParticle(
-				xPosMin,
-				xPosMax,
-				yPosMin,
-				yPosMax,
+				xmin,
+				xmax,
+				ymin,
+				ymax,
 				vxMin,
 				vxMax,
 				vyMin,

@@ -24,7 +24,7 @@ export default class Vector2D {
 	}
 
 	GetLength() {
-		return Math.sqrt(this.x ** 2 + this.y ** 2);
+		return Math.sqrt(this.x * this.x + this.y * this.y);
 	}
 
 	UpdateLength() {
