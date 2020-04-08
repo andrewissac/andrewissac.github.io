@@ -20,32 +20,49 @@ var fps, fpsInterval, startTime, now, then, elapsed;
 var particleCount = 100;
 var particles = [];
 var dt = 0.01;
-var gravitationalConst = 1;
 
 const WallBehaviorEnum = Object.freeze({ none: 1, infinite: 2, collision: 3 });
 let wallBehavior = WallBehaviorEnum.collision;
 var wallFrictionFactor = 0.8;
 let particleCollisionsEnabled = true;
 
-let sunMass = 10000;
-let sunRadius = 15;
+var initial_gravitationalConst = 1;
+let initial_sunMass = 10000;
+let initial_sunRadius = 15;
+
+var gravitationalConst = initial_gravitationalConst;
+let sunMass = initial_sunMass;
+let sunRadius = initial_sunRadius;
 
 // #region random particle parameters
-let xmin = 10;
-let xmax = canvasWidth - 10;
-let ymin = 10;
-let ymax = canvasHeight - 10;
-let vxMin = 0;
-let vxMax = 10;
-let vyMin = 0;
-let vyMax = 10;
-let radiusMin = 1;
-let radiusMax = 10;
-let massMin = 1;
-let massMax = 1;
+let initial_xmin = 10;
+let initial_xmax = canvasWidth - 10;
+let initial_ymin = 10;
+let initial_ymax = canvasHeight - 10;
+let initial_vxMin = 0;
+let initial_vxMax = 10;
+let initial_vyMin = 0;
+let initial_vyMax = 10;
+let initial_radiusMin = 1;
+let initial_radiusMax = 10;
+let initial_massMin = 1;
+let initial_massMax = 2;
+
+let xmin = initial_xmin;
+let xmax = initial_xmax;
+let ymin = initial_ymin;
+let ymax = initial_ymax;
+let vxMin = initial_vxMin;
+let vxMax = initial_vxMax;
+let vyMin = initial_vyMin;
+let vyMax = initial_vyMax;
+let radiusMin = initial_radiusMin;
+let radiusMax = initial_radiusMax;
+let massMin = initial_massMin;
+let massMax = initial_massMax;
 // #endregion
 
-function GenerateRandomizedParticles(N) {
+function GenerateRandomizedParticles(particleCount) {
 	// sun
 	particles = [];
 	particles.push(
@@ -93,11 +110,83 @@ fgCtx.lineWidth = 2;
 // #endregion
 
 // #region Inputs
+let xSliderMin = 10;
+let xSliderMax = 90;
+let xSliderStep = 1;
+let ySliderMin = 10;
+let ySliderMax = 90;
+let ySliderStep = 1;
+let vxSliderMin = 0;
+let vxSliderMax = 1000;
+let vxSliderStep = 1;
+let vySliderMin = 0;
+let vySliderMax = 1000;
+let vySliderStep = 1;
+let radiusSliderMin = 1;
+let radiusSliderMax = 30;
+let radiusSliderStep = 1;
+let massSliderMin = 1;
+let massSliderMax = 499;
+let massSliderStep = 1;
 // #region reset canvas button
 var resetCanvasButton = document.getElementById("resetCanvasButton");
 
 resetCanvasButton.onclick = function () {
 	resetCanvas = true;
+};
+// #endregion
+
+// #region reset settings button
+var resetSettingsButton = document.getElementById("resetSettingsButton");
+
+resetSettingsButton.onclick = function () {
+	gravitationalConst = initial_gravitationalConst;
+	gravConstSlider.value = gravitationalConst;
+	gravConstValue.innerHTML = gravConstSlider.value;
+	sunMass = initial_sunMass;
+	sunMassSlider.value = sunMass;
+	sunMassValue.innerHTML = sunMassSlider.value;
+	particles[0].mass = sunMass;
+	sunRadius = initial_sunRadius;
+	sunRadiusSlider.value = sunRadius;
+	sunRadiusValue.innerHTML = sunRadiusSlider.value;
+	particles[0].radius = sunRadius;
+	xmin = initial_xmin;
+	xminSlider.value = xmin;
+	xminValue.innerHTML = xminSlider.value + "%";
+	xmax = initial_xmax;
+	xmaxSlider.value = xmax;
+	xmaxValue.innerHTML = xmaxSlider.value + "%";
+	ymin = initial_ymin;
+	yminSlider.value = ymin;
+	yminValue.innerHTML = yminSlider.value + "%";
+	ymax = initial_ymax;
+	ymaxSlider.value = ymax;
+	ymaxValue.innerHTML = ymaxSlider.value + "%";
+	vxMin = initial_vxMin;
+	vxminSlider.value = vxMin;
+	vxminValue.innerHTML = vxminSlider.value;
+	vxMax = initial_vxMax;
+	vxmaxSlider.value = vxMax;
+	vxmaxValue.innerHTML = vxmaxSlider.value;
+	vyMin = initial_vyMin;
+	vyminSlider.value = vyMin;
+	vyminValue.innerHTML = vyminSlider.value;
+	vyMax = initial_vyMax;
+	vymaxSlider.value = vyMax;
+	vymaxValue.innerHTML = vymaxSlider.value;
+	radiusMin = initial_radiusMin;
+	radiusMinSlider.value = radiusMin;
+	radiusMinValue.innerHTML = radiusMinSlider.value;
+	radiusMax = initial_radiusMax;
+	radiusMaxSlider.value = radiusMax;
+	radiusMaxValue.innerHTML = radiusMaxSlider.value;
+	massMin = initial_massMin;
+	massMinSlider.value = massMin;
+	massMinValue.innerHTML = massMinSlider.value;
+	massMax = initial_massMax;
+	massMaxSlider.value = massMax;
+	massMaxValue.innerHTML = massMaxSlider.value;
 };
 // #endregion
 
@@ -250,156 +339,300 @@ sunRadiusSlider.oninput = function () {
 // #region xmin slider
 var xminSlider = document.getElementById("xminSlider");
 xminSlider.value = xmin;
+xminSlider.min = xSliderMin;
+xminSlider.max = xSliderMax;
+xminSlider.step = xSliderStep;
 var xminValue = document.getElementById("xminValue");
 xminValue.innerHTML = xminSlider.value + "%"; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 xminSlider.oninput = function () {
-	xminValue.innerHTML = this.value + "%";
-	xmin = Math.floor((this.value / 100) * canvasWidth);
+	let currentValue = parseInt(this.value);
+	if (currentValue < xSliderMax) {
+		if (currentValue >= parseInt(xmaxSlider.value)) {
+			let newVal = parseInt(currentValue + 1);
+			xmaxSlider.value = newVal;
+			xmaxValue.innerHTML = newVal + "%";
+			xmax = parseInt(Math.floor(newVal / 100) * canvasWidth);
+		}
+		xminValue.innerHTML = currentValue + "%";
+		xmin = Math.floor((currentValue / 100) * canvasWidth);
+	}
 };
 // #endregion
 
 // #region xmax slider
 var xmaxSlider = document.getElementById("xmaxSlider");
 xmaxSlider.value = xmax;
+xmaxSlider.min = xSliderMin;
+xmaxSlider.max = xSliderMax;
+xmaxSlider.step = xSliderStep;
 var xmaxValue = document.getElementById("xmaxValue");
 xmaxValue.innerHTML = xmaxSlider.value + "%"; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 xmaxSlider.oninput = function () {
-	xmaxValue.innerHTML = this.value + "%";
-	xmax = Math.floor((this.value / 100) * canvasWidth);
+	let currentValue = parseInt(this.value);
+	if (currentValue > xSliderMin) {
+		if (parseInt(xminSlider.value) >= currentValue) {
+			let newVal = parseInt(currentValue - 1);
+			xminSlider.value = newVal;
+			xminValue.innerHTML = newVal + "%";
+			xmin = parseInt(Math.floor(newVal / 100) * canvasWidth);
+		}
+		xmaxValue.innerHTML = currentValue + "%";
+		xmax = Math.floor((currentValue / 100) * canvasWidth);
+	}
 };
 // #endregion
 
 // #region ymin slider
 var yminSlider = document.getElementById("yminSlider");
 yminSlider.value = ymin;
+yminSlider.min = ySliderMin;
+yminSlider.max = ySliderMax;
+yminSlider.step = ySliderStep;
 var yminValue = document.getElementById("yminValue");
 yminValue.innerHTML = yminSlider.value + "%"; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 yminSlider.oninput = function () {
-	yminValue.innerHTML = this.value + "%";
-	ymin = Math.floor((this.value / 100) * canvasHeight);
+	let currentValue = parseInt(this.value);
+	if (currentValue < ySliderMax) {
+		if (currentValue >= parseInt(ymaxSlider.value)) {
+			let newVal = parseInt(currentValue + 1);
+			ymaxSlider.value = newVal;
+			ymaxValue.innerHTML = newVal + "%";
+			ymax = parseInt(Math.floor(newVal / 100) * canvasHeight);
+		}
+		yminValue.innerHTML = currentValue + "%";
+		ymin = Math.floor((currentValue / 100) * canvasHeight);
+	}
 };
 // #endregion
 
 // #region ymax slider
 var ymaxSlider = document.getElementById("ymaxSlider");
 ymaxSlider.value = ymax;
+ymaxSlider.min = ySliderMin;
+ymaxSlider.max = ySliderMax;
+ymaxSlider.step = ySliderStep;
 var ymaxValue = document.getElementById("ymaxValue");
 ymaxValue.innerHTML = ymaxSlider.value + "%"; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 ymaxSlider.oninput = function () {
-	ymaxValue.innerHTML = this.value + "%";
-	ymax = Math.floor((this.value / 100) * canvasHeight);
+	let currentValue = parseInt(this.value);
+	if (currentValue > xSliderMin) {
+		if (parseInt(yminSlider.value) >= currentValue) {
+			let newVal = parseInt(currentValue - 1);
+			yminSlider.value = newVal;
+			yminValue.innerHTML = newVal + "%";
+			ymin = parseInt(Math.floor(newVal / 100) * canvasHeight);
+		}
+		ymaxValue.innerHTML = currentValue + "%";
+		ymax = Math.floor((currentValue / 100) * canvasHeight);
+	}
 };
 // #endregion
 
 // #region vx-min slider
 var vxminSlider = document.getElementById("vxminSlider");
 vxminSlider.value = vxMin;
+vxminSlider.min = vxSliderMin;
+vxminSlider.max = vxSliderMax;
+vxminSlider.step = vxSliderStep;
 var vxminValue = document.getElementById("vxminValue");
 vxminValue.innerHTML = vxminSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 vxminSlider.oninput = function () {
-	vxminValue.innerHTML = this.value;
-	vxMin = this.value;
+	let currentValue = parseInt(this.value);
+	if (currentValue < vxSliderMax) {
+		if (currentValue >= parseInt(vxmaxSlider.value)) {
+			let newVal = parseInt(currentValue + 1);
+			vxmaxSlider.value = newVal;
+			vxmaxValue.innerHTML = newVal;
+			vxMax = newVal;
+		}
+		vxminValue.innerHTML = currentValue;
+		vxMin = currentValue;
+	}
 };
 // #endregion
 
 // #region vx-max slider
 var vxmaxSlider = document.getElementById("vxmaxSlider");
 vxmaxSlider.value = vxMax;
+vxmaxSlider.min = vxSliderMin;
+vxmaxSlider.max = vxSliderMax;
+vxmaxSlider.step = vxSliderStep;
 var vxmaxValue = document.getElementById("vxmaxValue");
 vxmaxValue.innerHTML = vxmaxSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 vxmaxSlider.oninput = function () {
-	vxmaxValue.innerHTML = this.value;
-	vxMax = this.value;
+	let currentValue = parseInt(this.value);
+	if (currentValue > vxSliderMin) {
+		if (parseInt(vxminSlider.value) >= currentValue) {
+			let newVal = parseInt(currentValue - 1);
+			vxminSlider.value = newVal;
+			vxminValue.innerHTML = newVal;
+			vxMin = newVal;
+		}
+		vxmaxValue.innerHTML = this.value;
+		vxMax = this.value;
+	}
 };
 // #endregion
 
 // #region vy-min slider
 var vyminSlider = document.getElementById("vyminSlider");
 vyminSlider.value = vyMin;
+vyminSlider.min = vySliderMin;
+vyminSlider.max = vySliderMax;
+vyminSlider.step = vySliderStep;
 var vyminValue = document.getElementById("vyminValue");
 vyminValue.innerHTML = vyminSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 vyminSlider.oninput = function () {
-	vyminValue.innerHTML = this.value;
-	vyMin = this.value;
+	let currentValue = parseInt(this.value);
+	if (currentValue < vySliderMax) {
+		if (currentValue >= parseInt(vymaxSlider.value)) {
+			let newVal = parseInt(currentValue + 1);
+			vymaxSlider.value = newVal;
+			vymaxValue.innerHTML = newVal;
+			vyMax = newVal;
+		}
+		vyminValue.innerHTML = currentValue;
+		vyMin = currentValue;
+	}
 };
 // #endregion
 
 // #region vy-max slider
 var vymaxSlider = document.getElementById("vymaxSlider");
 vymaxSlider.value = vyMax;
+vymaxSlider.min = vySliderMin;
+vymaxSlider.max = vySliderMax;
+vymaxSlider.step = vySliderStep;
 var vymaxValue = document.getElementById("vymaxValue");
 vymaxValue.innerHTML = vymaxSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 vymaxSlider.oninput = function () {
-	vymaxValue.innerHTML = this.value;
-	vyMax = this.value;
+	let currentValue = parseInt(this.value);
+	if (currentValue > vySliderMin) {
+		if (parseInt(vyminSlider.value) >= currentValue) {
+			let newVal = parseInt(currentValue - 1);
+			vyminSlider.value = newVal;
+			vyminValue.innerHTML = newVal;
+			vyMin = newVal;
+		}
+		vymaxValue.innerHTML = this.value;
+		vyMax = this.value;
+	}
 };
 // #endregion
 
 // #region radius-min slider
 var radiusMinSlider = document.getElementById("radiusMinSlider");
 radiusMinSlider.value = radiusMin;
+radiusMinSlider.min = radiusSliderMin;
+radiusMinSlider.max = radiusSliderMax;
+radiusMinSlider.step = radiusSliderStep;
 var radiusMinValue = document.getElementById("radiusMinValue");
 radiusMinValue.innerHTML = radiusMinSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 radiusMinSlider.oninput = function () {
-	radiusMinValue.innerHTML = this.value;
-	radiusMin = this.value;
+	let currentValue = parseInt(this.value);
+	if (currentValue < radiusSliderMax) {
+		if (currentValue >= parseInt(radiusMaxSlider.value)) {
+			let newVal = parseInt(currentValue + 1);
+			radiusMaxSlider.value = newVal;
+			radiusMaxValue.innerHTML = newVal;
+			radiusMax = newVal;
+		}
+		radiusMinValue.innerHTML = currentValue;
+		radiusMin = currentValue;
+	}
 };
 // #endregion
 
 // #region radius-max slider
 var radiusMaxSlider = document.getElementById("radiusMaxSlider");
 radiusMaxSlider.value = radiusMax;
+radiusMaxSlider.min = radiusSliderMin;
+radiusMaxSlider.max = radiusSliderMax;
+radiusMaxSlider.step = radiusSliderStep;
 var radiusMaxValue = document.getElementById("radiusMaxValue");
 radiusMaxValue.innerHTML = radiusMaxSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 radiusMaxSlider.oninput = function () {
-	radiusMaxValue.innerHTML = this.value;
-	radiusMax = this.value;
+	let currentValue = parseInt(this.value);
+	if (currentValue > radiusSliderMin) {
+		if (parseInt(radiusMinSlider.value) >= currentValue) {
+			let newVal = parseInt(currentValue - 1);
+			radiusMinSlider.value = newVal;
+			radiusMinValue.innerHTML = newVal;
+			radiusMin = newVal;
+		}
+		radiusMaxValue.innerHTML = currentValue;
+		radiusMax = currentValue;
+	}
 };
 // #endregion
 
 // #region mass-min slider
 var massMinSlider = document.getElementById("massMinSlider");
 massMinSlider.value = massMin;
+massMinSlider.min = massSliderMin;
+massMinSlider.max = massSliderMax;
+massMinSlider.step = massSliderStep;
 var massMinValue = document.getElementById("massMinValue");
 massMinValue.innerHTML = massMinSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 massMinSlider.oninput = function () {
-	massMinValue.innerHTML = this.value;
-	massMin = this.value;
+	let currentValue = parseInt(this.value);
+	if (currentValue < massSliderMax) {
+		if (currentValue >= parseInt(massMaxSlider.value)) {
+			let newVal = parseInt(currentValue + 1);
+			massMaxSlider.value = newVal;
+			massMaxValue.innerHTML = newVal;
+			massMax = newVal;
+		}
+		massMinValue.innerHTML = currentValue;
+		massMin = currentValue;
+	}
 };
 // #endregion
 
 // #region mass-max slider
 var massMaxSlider = document.getElementById("massMaxSlider");
 massMaxSlider.value = massMax;
+massMaxSlider.min = massSliderMin;
+massMaxSlider.max = massSliderMax;
+massMaxSlider.step = massSliderStep;
 var massMaxValue = document.getElementById("massMaxValue");
 massMaxValue.innerHTML = massMaxSlider.value; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 massMaxSlider.oninput = function () {
-	massMaxValue.innerHTML = this.value;
-	massMax = this.value;
+	let currentValue = parseInt(this.value);
+	if (currentValue > massSliderMin) {
+		if (parseInt(massMinSlider.value) >= currentValue) {
+			let newVal = parseInt(currentValue - 1);
+			massMinSlider.value = newVal;
+			massMinValue.innerHTML = newVal;
+			massMin = newVal;
+		}
+		massMaxValue.innerHTML = currentValue;
+		massMax = currentValue;
+	}
 };
 // #endregion
 // #endregion

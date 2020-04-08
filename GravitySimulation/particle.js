@@ -134,6 +134,7 @@ export default class Particle {
 		let particles = [];
 		particles = particles.concat(particleList);
 		let i = 0;
+		let overlappingCounter = 0;
 		while (i < N) {
 			let particle = this.GenerateRandomParticle(
 				xmin,
@@ -154,14 +155,20 @@ export default class Particle {
 			for (let j = 0; j < particles.length; j++) {
 				if (particle.Overlaps(particles[j])) {
 					twoParticlesOverlap = true;
+					overlappingCounter++;
 					break;
 				}
+			}
+			if (overlappingCounter > 150000) {
+				alert("The radius min/max are probably too large and/or the x/y ranges are too small.");
+				break;
 			}
 			if (!twoParticlesOverlap) {
 				particles.push(particle);
 				i++;
 			}
 		}
+		//console.log(overlappingCounter);
 		return particles;
 	}
 }

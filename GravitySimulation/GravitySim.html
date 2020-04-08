@@ -29,8 +29,11 @@
 		</style>
 	</head>
 	<body>
-		<div style="margin-bottom: 30px">
+		<div style="margin-bottom: 20px" class="horizontalDiv">
 			<a href="../index.html">Go back to mainpage</a>
+			<div style="margin-left: 30px;">
+				<span id="fpsValue"></span>
+			</div>
 		</div>
 		<div class="horizontalDiv" style="margin-bottom: 10px">
 			<div>
@@ -73,9 +76,6 @@
                 <p>timestep value: <span id="timeStepValue"></span></p>
             </div>
 		</div>
-		<div style="margin-bottom: 10px;">
-			<span id="fpsValue"></span>
-		</div>
 		<div class="horizontalDiv" id="canvasContainer">
 			<div style="height: 800px; width: 800px;">
 				<canvas id="backgroundCanvas" style="background-color: black; position:absolute; z-index: 1"></canvas>
@@ -104,69 +104,72 @@
 						<td class="tg-0pky"><input type="range" min="1" max="100" step="1" class="slider" id="sunRadiusSlider"></input></td>
 					</tr>
 					<tr>
-						<th class="tg-0pky" colspan="3">Random Particle Generator Settings</td>
+						<th class="tg-0pky" colspan="3">Random Particle Generator Settings<br>(changes apply on manual canvas reset)</td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">x-min</td>
 						<td class="tg-0pky"><span id="xminValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="10" max="90" step="1" class="slider" id="xminSlider"></input></td>
+						<td class="tg-0pky"><input type="range" class="slider" id="xminSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">x-max</td>
 						<td class="tg-0pky"><span id="xmaxValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="10" max="90" step="1" class="slider" id="xmaxSlider"></input></td>
+						<td class="tg-0pky"><input type="range" class="slider" id="xmaxSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">y-min</td>
 						<td class="tg-0pky"><span id="yminValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="10" max="90" step="1" class="slider" id="yminSlider"></input></td>
+						<td class="tg-0pky"><input type="range" class="slider" id="yminSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">y-max</td>
 						<td class="tg-0pky"><span id="ymaxValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="10" max="90" step="1" class="slider" id="ymaxSlider"></input></td>
+						<td class="tg-0pky"><input type="range" class="slider" id="ymaxSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">vx-min</td>
 						<td class="tg-0pky"><span id="vxminValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="0" max="1000" step="1" class="slider" id="vxminSlider"></input></td>
+						<td class="tg-0pky"><input type="range" class="slider" id="vxminSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">vx-max</td>
 						<td class="tg-0pky"><span id="vxmaxValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="0" max="1000" step="1" class="slider" id="vxmaxSlider"></input></td>
+						<td class="tg-0pky"><input type="range" class="slider" id="vxmaxSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">vy-min</td>
 						<td class="tg-0pky"><span id="vyminValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="0" max="1000" step="1" class="slider" id="vyminSlider"></input></td>
+						<td class="tg-0pky"><input type="range"  class="slider" id="vyminSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">vy-max</td>
 						<td class="tg-0pky"><span id="vymaxValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="0" max="1000" step="1" class="slider" id="vymaxSlider"></input></td>
+						<td class="tg-0pky"><input type="range" class="slider" id="vymaxSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">radius-min</td>
 						<td class="tg-0pky"><span id="radiusMinValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="1" max="100" step="1" class="slider" id="radiusMinSlider"></input></td>
+						<td class="tg-0pky"><input type="range" step="1" class="slider" id="radiusMinSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">radius-max</td>
 						<td class="tg-0pky"><span id="radiusMaxValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="1" max="100" step="1" class="slider" id="radiusMaxSlider"></input></td>
+						<td class="tg-0pky"><input type="range" step="1" class="slider" id="radiusMaxSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">mass-min</td>
 						<td class="tg-0pky"><span id="massMinValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="1" max="499" step="1" class="slider" id="massMinSlider"></input></td>
+						<td class="tg-0pky"><input type="range" class="slider" id="massMinSlider"></input></td>
 					</tr>
 					<tr>
 						<td class="tg-0pky">mass-max</td>
 						<td class="tg-0pky"><span id="massMaxValue"></span></td>
-						<td class="tg-0pky"><input type="range" min="1" max="499" step="1" class="slider" id="massMaxSlider"></input></td>
+						<td class="tg-0pky"><input type="range" class="slider" id="massMaxSlider"></input></td>
 					</tr>
 				  </table>
+				  <div>
+					<button id="resetSettingsButton" style="margin-top: 10px;">Reset Values</button>
+				</div>
             </div>
 		</div>
 		<script type="module" src="./main.js"></script>
