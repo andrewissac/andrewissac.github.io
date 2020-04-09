@@ -17,7 +17,7 @@ var stop = false;
 var frameCount = 0;
 var fps, fpsInterval, startTime, now, then, elapsed;
 
-var particleCount = 100;
+var particleCount = 20;
 var particles = [];
 var dt = 0.01;
 
@@ -26,7 +26,7 @@ let wallBehavior = WallBehaviorEnum.collision;
 var wallFrictionFactor = 0.8;
 let particleCollisionsEnabled = true;
 
-var initial_gravitationalConst = 1;
+var initial_gravitationalConst = 10;
 let initial_sunMass = 10000;
 let initial_sunRadius = 15;
 
@@ -128,6 +128,7 @@ let radiusSliderStep = 1;
 let massSliderMin = 1;
 let massSliderMax = 499;
 let massSliderStep = 1;
+
 // #region reset canvas button
 var resetCanvasButton = document.getElementById("resetCanvasButton");
 
@@ -212,7 +213,7 @@ infiniteWallsRadiobutton.onclick = function () {
 };
 // #endregion
 
-// #region infinite walls radio button
+// #region collision walls radio button
 var collisionWallsRadiobutton = document.getElementById("collisionWallsRadiobutton");
 collisionWallsRadiobutton.checked = true;
 
@@ -241,6 +242,7 @@ particleCountValue.innerHTML = particleCountSlider.value; // Display the default
 // Update the current slider value (each time you drag the slider handle)
 particleCountSlider.oninput = function () {
 	particleCountValue.innerHTML = this.value;
+	let overlappingCounter = 0;
 	while (particleCount != this.value) {
 		if (particleCount > this.value) {
 			particles.pop();
@@ -265,8 +267,13 @@ particleCountSlider.oninput = function () {
 			for (let j = 0; j < particles.length; j++) {
 				if (particle.Overlaps(particles[j])) {
 					twoParticlesOverlap = true;
+					overlappingCounter++;
 					break;
 				}
+			}
+			if (overlappingCounter > 150000) {
+				alert("The radius min/max are probably too large and/or the x/y ranges are too small.");
+				break;
 			}
 			if (!twoParticlesOverlap) {
 				particles.push(particle);
@@ -316,9 +323,9 @@ sunMassValue.innerHTML = sunMassSlider.value; // Display the default slider valu
 
 // Update the current slider value (each time you drag the slider handle)
 sunMassSlider.oninput = function () {
-	sunMassValue.innerHTML = this.value;
-	sunMass = this.value;
-	particles[0].mass = this.value;
+	sunMassValue.innerHTML = parseInt(this.value);
+	sunMass = parseInt(this.value);
+	particles[0].mass = parseInt(this.value);
 };
 // #endregion
 
@@ -330,9 +337,9 @@ sunRadiusValue.innerHTML = sunRadiusSlider.value; // Display the default slider 
 
 // Update the current slider value (each time you drag the slider handle)
 sunRadiusSlider.oninput = function () {
-	sunRadiusValue.innerHTML = this.value;
-	sunRadius = this.value;
-	particles[0].radius = this.value;
+	sunRadiusValue.innerHTML = parseInt(this.value);
+	sunRadius = parseInt(this.value);
+	particles[0].radius = parseInt(this.value);
 };
 // #endregion
 
@@ -675,16 +682,36 @@ function draw() {
 					if (tempParticles[i].Overlaps(tempParticles[k])) {
 						// resolve the issue when particles overlap by pushing them away from eachother sothat they don't overlap
 						let distance = tempParticles[i].position.DistanceTo(tempParticles[k].position);
-						let overlap = (tempParticles[i].radius + tempParticles[k].radius - distance) / 2;
-						tempParticles[i].position.x +=
-							(overlap * (tempParticles[i].position.x - tempParticles[k].position.x)) / distance;
-						tempParticles[i].position.y +=
-							(overlap * (tempParticles[i].position.y - tempParticles[k].position.y)) / distance;
+						let overlap = tempParticles[i].radius + tempParticles[k].radius - distance;
+						let massRatio = tempParticles[i].mass / tempParticles[k].mass;
+						if (massRatio > 100) {
+							// particle 1 much more massive than particle 2 => only move particle 2
+							tempParticles[k].position.x -=
+								(overlap * (tempParticles[i].position.x - tempParticles[k].position.x)) / distance;
+							tempParticles[k].position.y -=
+								(overlap * (tempParticles[i].position.y - tempParticles[k].position.y)) / distance;
+						} else if (massRatio < 0.01) {
+							// particle 2 much more massive than particle 1 => only move particle 1
+							tempParticles[i].position.x +=
+								(overlap * (tempParticles[i].position.x - tempParticles[k].position.x)) / distance;
+							tempParticles[i].position.y +=
+								(overlap * (tempParticles[i].position.y - tempParticles[k].position.y)) / distance;
+						} else {
+							// particles are not insanely different in mass => move both
+							tempParticles[i].position.x +=
+								((overlap / 2) * (tempParticles[i].position.x - tempParticles[k].position.x)) /
+								distance;
+							tempParticles[i].position.y +=
+								((overlap / 2) * (tempParticles[i].position.y - tempParticles[k].position.y)) /
+								distance;
 
-						tempParticles[k].position.x -=
-							(overlap * (tempParticles[i].position.x - tempParticles[k].position.x)) / distance;
-						tempParticles[k].position.y -=
-							(overlap * (tempParticles[i].position.y - tempParticles[k].position.y)) / distance;
+							tempParticles[k].position.x -=
+								((overlap / 2) * (tempParticles[i].position.x - tempParticles[k].position.x)) /
+								distance;
+							tempParticles[k].position.y -=
+								((overlap / 2) * (tempParticles[i].position.y - tempParticles[k].position.y)) /
+								distance;
+						}
 
 						// elastic scattering
 						const massFac1 = (2 * tempParticles[k].mass) / (tempParticles[i].mass + tempParticles[k].mass);
