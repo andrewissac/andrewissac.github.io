@@ -50,7 +50,7 @@ export function GetRandomGaussianNormal_BoxMuller(min, max, skew = 1) {
 export function Distance(x1, y1, x2, y2) {
 	const xDist = x2 - x1;
 	const yDist = y2 - y1;
-	return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
+	return Math.sqrt(xDist * xDist + yDist * yDist);
 }
 
 // #region drawing functions
@@ -103,4 +103,103 @@ export function make2DArray(rows, cols) {
 	}
 	return arr;
 }
+
+export class ColorRGBA {
+	constructor(R, G, B, A) {
+		this._R = parseInt(R);
+		this._G = parseInt(G);
+		this._B = parseInt(B);
+		this._A = parseFloat(A);
+		this._RGBA = "rgba(" + this._R + "," + this._G + "," + this._B + "," + this._A + ")";
+	}
+
+	get R() {
+		return this._R;
+	}
+
+	set R(newR) {
+		this._R = parseInt(newR);
+		this._RGBA = "rgba(" + this._R + "," + this._G + "," + this._B + "," + this._A + ")";
+	}
+
+	get G() {
+		return this._G;
+	}
+
+	set G(newG) {
+		this._G = parseInt(newG);
+		this._RGBA = "rgba(" + this._R + "," + this._G + "," + this._B + "," + this._A + ")";
+	}
+
+	get B() {
+		return this._B;
+	}
+
+	set B(newB) {
+		this._B = parseInt(newB);
+		this._RGBA = "rgba(" + this._R + "," + this._G + "," + this._B + "," + this._A + ")";
+	}
+
+	get A() {
+		return this._A;
+	}
+
+	set A(newA) {
+		this._A = parseFloat(newA);
+		this._RGBA = "rgba(" + this._R + "," + this._G + "," + this._B + "," + this._A + ")";
+	}
+
+	get RGBA() {
+		return this._RGBA;
+	}
+
+	static LinearInterpolateColors(colors, percentage) {
+		let percentage_ = parseFloat(percentage);
+		if (colors.length < 2) {
+			throw new Error("LinearInterpolateColors: need at least 2 colors to interpolate.");
+		}
+		colors.forEach((color) => {
+			if (!(color instanceof ColorRGBA)) {
+				throw new TypeError("LinearInterpolateColors: colors have wrong type");
+			} else if (percentage_ < 0 || percentage_ > 1) {
+				throw new Error("LinearInterpolateColors: Percentage out of range. Expected a value between 0 and 1.");
+			}
+		});
+		let intervalCount = colors.length - 1;
+		let intervalSize = 1 / intervalCount;
+		let intervalNumber = Math.floor(percentage_ / intervalSize);
+		let scaledPercentage = percentage_ / intervalSize - intervalNumber;
+
+		if (percentage_ === 1) {
+			return colors[colors.length - 1];
+		} else {
+			return new ColorRGBA(
+				colors[intervalNumber].R + scaledPercentage * (colors[intervalNumber + 1].R - colors[intervalNumber].R),
+				colors[intervalNumber].G + scaledPercentage * (colors[intervalNumber + 1].G - colors[intervalNumber].G),
+				colors[intervalNumber].B + scaledPercentage * (colors[intervalNumber + 1].B - colors[intervalNumber].B),
+				colors[intervalNumber].A + scaledPercentage * (colors[intervalNumber + 1].A - colors[intervalNumber].A)
+			);
+		}
+	}
+}
+
+function ComponentToHex(c) {
+	var hex = c.toString(16);
+	return hex.length == 1 ? "0" + hex : hex;
+}
+
+export function RgbaToHex(color) {
+	if (color instanceof ColorRGBA) {
+		throw new TypeError("RgbaToHex: input parameter has wrong type.");
+	}
+	return "#" + ComponentToHex(color.R) + ComponentToHex(color.G) + ComponentToHex(color.B);
+}
+
+export function HexToRGBA(hex) {
+	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	return result
+		? new ColorRGBA(parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16), 1.0)
+		: null;
+}
+
 // #endregion

@@ -21,6 +21,17 @@ var particleCount = 20;
 var particles = [];
 var dt = 0.01;
 
+let repullsionColors = [];
+repullsionColors.push(helpers.HexToRGBA("#FFFFFF"));
+repullsionColors.push(helpers.HexToRGBA("#6fe9ff"));
+repullsionColors.push(helpers.HexToRGBA("#6fe9ff"));
+repullsionColors.push(helpers.HexToRGBA("#0066ff"));
+let attractionColors = [];
+attractionColors.push(helpers.HexToRGBA("#FFFFFF"));
+attractionColors.push(helpers.HexToRGBA("#ffbbde"));
+attractionColors.push(helpers.HexToRGBA("#ffbbde"));
+attractionColors.push(helpers.HexToRGBA("#ff3ba0"));
+
 const WallBehaviorEnum = Object.freeze({ none: 1, infinite: 2, collision: 3 });
 let wallBehavior = WallBehaviorEnum.collision;
 var wallFrictionFactor = 0.8;
@@ -68,6 +79,7 @@ function GenerateRandomizedParticles(particleCount) {
 	particles.push(
 		new Particle(
 			new Vector2D(Math.floor(canvasWidth / 2), Math.floor(canvasHeight / 2)),
+			new Vector2D(0, 0),
 			new Vector2D(0, 0),
 			sunRadius,
 			sunMass
@@ -807,11 +819,29 @@ function draw() {
 		// draw stuff here
 		particles.forEach((particle) => {
 			if (!particle.isHeavyParticle) {
-				particle.Draw(fgCtx, whiteLineStrokeStyle, whiteLineStrokeStyle);
+				let mycolor = new helpers.ColorRGBA(255, 255, 255, 1.0);
+				//particle.Draw(fgCtx, whiteLineStrokeStyle, whiteLineStrokeStyle);
+				if (gravitationalConst >= 0) {
+					let percentage = particle.acceleration.length / 100 > 1 ? 1 : particle.acceleration.length / 100;
+					mycolor = helpers.ColorRGBA.LinearInterpolateColors(attractionColors, percentage);
+					particle.Draw(fgCtx, mycolor.RGBA, mycolor.RGBA);
+				} else {
+					let percentage = particle.acceleration.length / 100 > 1 ? 1 : particle.acceleration.length / 100;
+					mycolor = helpers.ColorRGBA.LinearInterpolateColors(repullsionColors, percentage);
+				}
+				particle.Draw(fgCtx, mycolor.RGBA, mycolor.RGBA);
 			} else {
 				particle.Draw(fgCtx, "rgba(255, 255, 0, 1.0)", "rgba(255, 255, 0, 1.0)");
 			}
 		});
+
+		// for (let i = 0; i < 70; i++) {
+		// 	fgCtx.beginPath();
+		// 	let mycolor = helpers.ColorRGBA.LinearInterpolateColors(colors, i / 70);
+		// 	helpers.drawFilledCircle(fgCtx, new Vector2D(i + i * 10, 50), 10, mycolor.RGBA, mycolor.RGBA);
+		// 	fgCtx.fill();
+		// 	fgCtx.stroke();
+		// }
 
 		// TESTING...Report #seconds since start and achieved fps.
 		var sinceStart = now - startTime;

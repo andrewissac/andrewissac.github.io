@@ -2,9 +2,13 @@ import * as helpers from "../Utils/helpers.js";
 import Vector2D from "../Utils/Vector2D.js";
 
 export default class Particle {
-	constructor(position, velocity, radius = 3, mass = 1) {
+	constructor(position, velocity, acceleration, radius = 3, mass = 1) {
+		if (!(position instanceof Vector2D) || !(velocity instanceof Vector2D) || !(acceleration instanceof Vector2D)) {
+			throw new TypeError("Particle constructor received wrong input types.");
+		}
 		this._position = new Vector2D(position.x, position.y);
 		this._velocity = new Vector2D(velocity.x, velocity.y);
+		this._acceleration = new Vector2D(acceleration.x, acceleration.y);
 		this._radius = radius;
 		this._mass = mass;
 		if (mass >= 500) {
@@ -28,6 +32,14 @@ export default class Particle {
 
 	set velocity(newVelocityVec) {
 		this._velocity = new Vector2D(newVelocityVec.x, newVelocityVec.y);
+	}
+
+	get acceleration() {
+		return this._acceleration;
+	}
+
+	set acceleration(newAccel) {
+		this._acceleration = new Vector2D(newAccel.x, newAccel.y);
 	}
 
 	get mass() {
@@ -63,6 +75,7 @@ export default class Particle {
 		let particle = new Particle(
 			new Vector2D(this.position.x, this.position.y),
 			new Vector2D(this.velocity.x, this.velocity.y),
+			new Vector2D(this.acceleration.x, this.acceleration.y),
 			this.radius,
 			this.mass
 		);
@@ -95,6 +108,7 @@ export default class Particle {
 				helpers.GetRandomGaussianNormal_BoxMuller(vxMin, vxMax, 1) * plusOrMinus1,
 				helpers.GetRandomGaussianNormal_BoxMuller(vyMin, vyMax, 1) * plusOrMinus2
 			),
+			new Vector2D(0, 0),
 			helpers.GetRandomGaussianNormal_BoxMuller(radiusMin, radiusMax, 1),
 			helpers.GetRandomGaussianNormal_BoxMuller(massMin, massMax, 1)
 		);
@@ -105,6 +119,7 @@ export default class Particle {
 		// 		helpers.GetRandomIntFromRange(vxMin, vxMax) * plusOrMinus1,
 		// 		helpers.GetRandomIntFromRange(vyMin, vyMax) * plusOrMinus2
 		// 	),
+		//  new Vector2D(0,0),
 		// 	helpers.GetRandomIntFromRange(radiusMin, radiusMax),
 		// 	helpers.GetRandomIntFromRange(massMin, massMax)
 		// );

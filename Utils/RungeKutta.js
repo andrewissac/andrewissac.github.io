@@ -53,7 +53,7 @@ function CalcGravAcceleration(targetParticleIndex, particles, gravConst) {
 }
 
 export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt, gravConst) {
-	let initial = new Particle(new Vector2D(0, 0), new Vector2D(0, 0), 1, 1);
+	let initial = new Particle(new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(0, 0), 1, 1);
 	initial = particles[targetParticleIndex].DeepCopy();
 	let tempParticles = [];
 	particles.forEach((particle) => {
@@ -83,6 +83,7 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt, gra
 	tempParticles[targetParticleIndex] = new Particle(
 		new Vector2D(x2, y2),
 		new Vector2D(vx2, vy2),
+		new Vector2D(0, 0), // doesn't matter what values are here in this step
 		initial.radius,
 		initial.mass
 	);
@@ -104,6 +105,7 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt, gra
 	tempParticles[targetParticleIndex] = new Particle(
 		new Vector2D(x3, y3),
 		new Vector2D(vx3, vy3),
+		new Vector2D(0, 0), // doesn't matter what values are here in this step
 		initial.radius,
 		initial.mass
 	);
@@ -118,6 +120,7 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt, gra
 	tempParticles[targetParticleIndex] = new Particle(
 		new Vector2D(x4, y4),
 		new Vector2D(vx4, vy4),
+		new Vector2D(0, 0), // doesn't matter what values are here in this step
 		initial.radius,
 		initial.mass
 	);
@@ -129,6 +132,14 @@ export function RK4_ParticlesInGravField(targetParticleIndex, particles, dt, gra
 	let yfinal = initial.position.y + (1 / 6) * (vy1 + 2 * vy2 + 2 * vy3 + vy4) * dt;
 	let vxfinal = initial.velocity.x + (1 / 6) * (ax1 + 2 * ax2 + 2 * ax3 + ax4) * dt;
 	let vyfinal = initial.velocity.y + (1 / 6) * (ay1 + 2 * ay2 + 2 * ay3 + ay4) * dt;
+	let axfinal = (1 / 6) * (ax1 + 2 * ax2 + 2 * ax3 + ax4);
+	let ayfinal = (1 / 6) * (ay1 + 2 * ay2 + 2 * ay3 + ay4);
 
-	return new Particle(new Vector2D(xfinal, yfinal), new Vector2D(vxfinal, vyfinal), initial.radius, initial.mass);
+	return new Particle(
+		new Vector2D(xfinal, yfinal),
+		new Vector2D(vxfinal, vyfinal),
+		new Vector2D(axfinal, ayfinal),
+		initial.radius,
+		initial.mass
+	);
 }
