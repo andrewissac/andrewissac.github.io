@@ -7,12 +7,7 @@ import Vector2D from "../Utils/Vector2D.js";
 var canvasHeight = 800;
 var canvasWidth = 800;
 const whiteLineStrokeStyle = "rgba(255, 255, 255, 1.0)";
-var fadeAway = false;
-var liveResetCanvas = false;
 var resetCanvas = false;
-var fadeAwaySpeed = 0.01;
-var myValue = 0;
-
 var stop = false;
 var frameCount = 0;
 var fps, fpsInterval, startTime, now, then, elapsed;
@@ -31,6 +26,8 @@ attractionColors.push(helpers.HexToRGBA("#FFFFFF"));
 attractionColors.push(helpers.HexToRGBA("#ffbbde"));
 attractionColors.push(helpers.HexToRGBA("#ffbbde"));
 attractionColors.push(helpers.HexToRGBA("#ff3ba0"));
+
+let sunColor = helpers.HexToRGBA("#FFFF00");
 
 const WallBehaviorEnum = Object.freeze({ none: 1, infinite: 2, collision: 3 });
 let wallBehavior = WallBehaviorEnum.collision;
@@ -128,10 +125,10 @@ let xSliderStep = 1;
 let ySliderMin = 10;
 let ySliderMax = 90;
 let ySliderStep = 1;
-let vxSliderMin = 0;
+let vxSliderMin = -1000;
 let vxSliderMax = 1000;
 let vxSliderStep = 1;
-let vySliderMin = 0;
+let vySliderMin = -1000;
 let vySliderMax = 1000;
 let vySliderStep = 1;
 let radiusSliderMin = 1;
@@ -289,6 +286,7 @@ particleCountSlider.oninput = function () {
 			}
 			if (!twoParticlesOverlap) {
 				particles.push(particle);
+				//console.log(particle.mass);
 				particleCount++;
 			}
 		}
@@ -654,6 +652,83 @@ massMaxSlider.oninput = function () {
 	}
 };
 // #endregion
+
+// #region Handle mouse events
+let pointerOnCanvas = false;
+let isLeftMouseDown = false; // button 0
+let isMiddleMouseDown = false; // button 1
+let isRightMouseDown = false; // button 2
+let mouse = new Vector2D(0, 0);
+
+function SetPointerOnCanvas(myBool) {
+	if (pointerOnCanvas === !myBool) {
+		pointerOnCanvas = myBool;
+	}
+}
+
+foregroundCanvas.addEventListener("touchstart", function (event) {
+	SetPointerOnCanvas(true);
+	event.preventDefault();
+});
+
+foregroundCanvas.addEventListener("touchend", function (event) {
+	SetPointerOnCanvas(false);
+	event.preventDefault();
+});
+
+foregroundCanvas.addEventListener("touchmove", function (event) {
+	let touchobj = event.changedTouches[0];
+	particles[0].position.x = touchobj.clientX;
+	particles[0].position.y = touchobj.clientY;
+	event.preventDefault();
+});
+
+foregroundCanvas.addEventListener("mouseenter", function (event) {
+	SetPointerOnCanvas(true);
+});
+
+foregroundCanvas.addEventListener("mouseleave", function (event) {
+	SetPointerOnCanvas(false);
+});
+
+foregroundCanvas.addEventListener("mousedown", function (event) {
+	switch (event.button) {
+		case 0: {
+			isLeftMouseDown = true;
+			break;
+		}
+		case 1: {
+			isMiddleMouseDown = true;
+			break;
+		}
+		case 2: {
+			isRightMouseDown = true;
+			break;
+		}
+	}
+});
+
+foregroundCanvas.addEventListener("mouseup", function (event) {
+	switch (event.button) {
+		case 0: {
+			isLeftMouseDown = false;
+			break;
+		}
+		case 1: {
+			isMiddleMouseDown = false;
+			break;
+		}
+		case 2: {
+			isRightMouseDown = false;
+			break;
+		}
+	}
+});
+
+foregroundCanvas.addEventListener("mousemove", function (event) {
+	mouse = helpers.GetMousePos(foregroundCanvas, event);
+});
+//#endregion
 // #endregion
 
 function startAnimating(fps) {
@@ -702,13 +777,15 @@ function draw() {
 								(overlap * (tempParticles[i].position.x - tempParticles[k].position.x)) / distance;
 							tempParticles[k].position.y -=
 								(overlap * (tempParticles[i].position.y - tempParticles[k].position.y)) / distance;
-						} else if (massRatio < 0.01) {
-							// particle 2 much more massive than particle 1 => only move particle 1
-							tempParticles[i].position.x +=
-								(overlap * (tempParticles[i].position.x - tempParticles[k].position.x)) / distance;
-							tempParticles[i].position.y +=
-								(overlap * (tempParticles[i].position.y - tempParticles[k].position.y)) / distance;
-						} else {
+						}
+						// else if (massRatio < 0.01) {
+						// 	// particle 2 much more massive than particle 1 => only move particle 1
+						// 	tempParticles[i].position.x +=
+						// 		(overlap * (tempParticles[i].position.x - tempParticles[k].position.x)) / distance;
+						// 	tempParticles[i].position.y +=
+						// 		(overlap * (tempParticles[i].position.y - tempParticles[k].position.y)) / distance;
+						// }
+						else {
 							// particles are not insanely different in mass => move both
 							tempParticles[i].position.x +=
 								((overlap / 2) * (tempParticles[i].position.x - tempParticles[k].position.x)) /
@@ -819,29 +896,34 @@ function draw() {
 		// draw stuff here
 		particles.forEach((particle) => {
 			if (!particle.isHeavyParticle) {
-				let mycolor = new helpers.ColorRGBA(255, 255, 255, 1.0);
+				let clr = new helpers.ColorRGBA(255, 255, 255, 1.0);
 				//particle.Draw(fgCtx, whiteLineStrokeStyle, whiteLineStrokeStyle);
 				if (gravitationalConst >= 0) {
 					let percentage = particle.acceleration.length / 100 > 1 ? 1 : particle.acceleration.length / 100;
-					mycolor = helpers.ColorRGBA.LinearInterpolateColors(attractionColors, percentage);
-					particle.Draw(fgCtx, mycolor.RGBA, mycolor.RGBA);
+					clr = helpers.ColorRGBA.LinearInterpolateColors(attractionColors, percentage);
+					particle.Draw(fgCtx, clr.RGBA, clr.RGBA);
 				} else {
 					let percentage = particle.acceleration.length / 100 > 1 ? 1 : particle.acceleration.length / 100;
-					mycolor = helpers.ColorRGBA.LinearInterpolateColors(repullsionColors, percentage);
+					clr = helpers.ColorRGBA.LinearInterpolateColors(repullsionColors, percentage);
 				}
-				particle.Draw(fgCtx, mycolor.RGBA, mycolor.RGBA);
+				particle.Draw(fgCtx, clr.RGBA, clr.RGBA);
 			} else {
-				particle.Draw(fgCtx, "rgba(255, 255, 0, 1.0)", "rgba(255, 255, 0, 1.0)");
+				let dist = Math.floor(helpers.Distance(particle.position.x, particle.position.y, mouse.x, mouse.y));
+				if (dist < 50 && particle.radius < sunRadius * 1.2) {
+					particle.radius += 0.2;
+				} else if (particle.radius > sunRadius) {
+					particle.radius -= 0.2;
+				}
+				particle.Draw(fgCtx, sunColor.RGBA, sunColor.RGBA);
 			}
 		});
 
-		// for (let i = 0; i < 70; i++) {
-		// 	fgCtx.beginPath();
-		// 	let mycolor = helpers.ColorRGBA.LinearInterpolateColors(colors, i / 70);
-		// 	helpers.drawFilledCircle(fgCtx, new Vector2D(i + i * 10, 50), 10, mycolor.RGBA, mycolor.RGBA);
-		// 	fgCtx.fill();
-		// 	fgCtx.stroke();
-		// }
+		if (isLeftMouseDown) {
+			particles[0].lastMousePos.x += (mouse.x - particles[0].lastMousePos.x) * 0.05;
+			particles[0].lastMousePos.y += (mouse.y - particles[0].lastMousePos.y) * 0.05;
+			particles[0].position.x = particles[0].lastMousePos.x;
+			particles[0].position.y = particles[0].lastMousePos.y;
+		}
 
 		// TESTING...Report #seconds since start and achieved fps.
 		var sinceStart = now - startTime;

@@ -1,3 +1,5 @@
+import Vector2D from "./Vector2D.js";
+
 export var epsilon = 0.001;
 
 // #region trigonometry
@@ -202,4 +204,8 @@ export function HexToRGBA(hex) {
 		: null;
 }
 
+export function GetMousePos(canvas, evt) {
+	var rect = canvas.getBoundingClientRect();
+	return new Vector2D(evt.clientX - rect.left, evt.clientY - rect.top);
+}
 // #endregion

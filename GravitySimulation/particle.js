@@ -16,6 +16,7 @@ export default class Particle {
 		} else {
 			this._isHeavyParticle = false;
 		}
+		this._lastMousePos = { x: position.x, y: position.y };
 	}
 
 	get position() {
@@ -62,6 +63,15 @@ export default class Particle {
 		return this._isHeavyParticle;
 	}
 
+	get lastMousePos() {
+		return this._lastMousePos;
+	}
+
+	set lastMousePos(newMousePos) {
+		this._lastMousePos.x = newMousePos.x;
+		this._lastMousePos.y = newMousePos.y;
+	}
+
 	Draw(context, strokeStyle, fillStyle) {
 		context.beginPath();
 		context.fillStyle = fillStyle;
@@ -96,8 +106,6 @@ export default class Particle {
 		massMin,
 		massMax
 	) {
-		let plusOrMinus1 = Math.random() < 0.5 ? -1 : 1;
-		let plusOrMinus2 = Math.random() < 0.5 ? -1 : 1;
 		// normal distributed variables
 		let particle = new Particle(
 			new Vector2D(
@@ -105,19 +113,20 @@ export default class Particle {
 				helpers.GetRandomGaussianNormal_BoxMuller(ymin, ymax, 1)
 			),
 			new Vector2D(
-				helpers.GetRandomGaussianNormal_BoxMuller(vxMin, vxMax, 1) * plusOrMinus1,
-				helpers.GetRandomGaussianNormal_BoxMuller(vyMin, vyMax, 1) * plusOrMinus2
+				helpers.GetRandomGaussianNormal_BoxMuller(vxMin, vxMax, 1),
+				helpers.GetRandomGaussianNormal_BoxMuller(vyMin, vyMax, 1)
 			),
 			new Vector2D(0, 0),
 			helpers.GetRandomGaussianNormal_BoxMuller(radiusMin, radiusMax, 1),
 			helpers.GetRandomGaussianNormal_BoxMuller(massMin, massMax, 1)
 		);
+		//console.log(particle.mass);
 		// uniform distributed variables
 		// let particle = new Particle(
 		// 	new Vector2D(helpers.GetRandomIntFromRange(xmin, xmax), helpers.GetRandomIntFromRange(ymin, ymax)),
 		// 	new Vector2D(
-		// 		helpers.GetRandomIntFromRange(vxMin, vxMax) * plusOrMinus1,
-		// 		helpers.GetRandomIntFromRange(vyMin, vyMax) * plusOrMinus2
+		// 		helpers.GetRandomIntFromRange(vxMin, vxMax),
+		// 		helpers.GetRandomIntFromRange(vyMin, vyMax)
 		// 	),
 		//  new Vector2D(0,0),
 		// 	helpers.GetRandomIntFromRange(radiusMin, radiusMax),
