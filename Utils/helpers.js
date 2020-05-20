@@ -79,6 +79,11 @@ export function drawFilledCircle(context, origin, radius, rgbaStroke, rgbaFill) 
 	context.arc(origin.x, origin.y, radius, 0, 2 * Math.PI);
 }
 
+export function drawRectangle(context, rect2D, rgbaStroke) {
+	context.strokeStyle = rgbaStroke;
+	context.rect(rect2D.x, rect2D.y, rect2D.w, rect2D.h);
+}
+
 export function range(start, end, step = 1) {
 	const allNumbers = [start, end, step].every(Number.isFinite);
 
@@ -104,6 +109,17 @@ export function make2DArray(rows, cols) {
 		arr[i] = new Array(cols);
 	}
 	return arr;
+}
+
+export class Point2D {
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	static create() {
+		return new Point2D(0, 0);
+	}
 }
 
 export class ColorRGBA {
