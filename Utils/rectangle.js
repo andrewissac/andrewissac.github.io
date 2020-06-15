@@ -43,7 +43,7 @@ export class Rectangle {
 	}
 
 	intersects(otherRectangle) {
-		// these actually check if they DON'T intersect, hence the ! operator
+		// these conditions actually check if they DON'T intersect, hence the ! operator is needed for checking intersection
 		return !(
 			otherRectangle.x > this.x + this.w ||
 			this.x > otherRectangle.x + otherRectangle.w ||
