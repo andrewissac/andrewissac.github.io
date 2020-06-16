@@ -11,8 +11,8 @@ $("#SelectRandomItem").click(function () {
 });
 
 function parseStringToListOfStrings(myString) {
-	myString = myString.replace(/(\r\n|\n|\r)/gm, " ");
-	var stringArray = myString.split(" ");
+	myString = myString.replace(/(\r\n|\n|\r)/gm, "linebreak");
+	var stringArray = myString.split("linebreak");
 	stringArray = removeAllOccurances(stringArray, "");
 	return stringArray;
 }
