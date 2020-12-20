@@ -18,7 +18,7 @@ let relativeGifPosY = 0.64;
 let pr0plateHeight = 2000;
 let pr0plateWidth = 2000;
 
-let scaleFac = 0.20;
+let scaleFac = 0.15;
 
 let scaledParentHeight = pr0plateHeight * scaleFac;
 let scaledParentWidth = pr0plateWidth * scaleFac;
@@ -54,6 +54,7 @@ function getScaledImgDimensions(img, relativeHeight, scaledParentHeight_){
 }
 
 function preload() {
+  merryXmas = loadImage('assets/gifs/merryXmas.gif');
   pr0Plate = loadImage('assets/onlypr0LogoPlate.png');
   
   for(let i = 1; i <= 20; i++){
@@ -90,7 +91,7 @@ function pickColor() {
 var i = 0;
 
 function draw() {
-  background(0);
+  background('#161618');
   if (h > 360) {
     h = 0;
   }
@@ -100,6 +101,7 @@ function draw() {
   }
 
 
+  image(merryXmas, 500,200);
   tint(h, 70, 50);
   image(pr0Plate,x,y);
   noTint();
@@ -117,13 +119,13 @@ function draw() {
     xspeed = -xspeed;
     x = width - lights.width;
     pickColor();
-    gifs[i].img.hide();
+    //gifs[i].img.hide();
     i++;
   } else if (x <= 0) {
     xspeed = -xspeed;
     x = 0;
     pickColor();
-    gifs[i].img.hide();
+    //gifs[i].img.hide();
     i++;
   }
 
@@ -131,13 +133,13 @@ function draw() {
     yspeed = -yspeed;
     y = height -  lights.height;
     pickColor();
-    gifs[i].img.hide();
+    //gifs[i].img.hide();
     i++;
   } else if (y <= 0) {
     yspeed = -yspeed;
     y = 0;
     pickColor();
-    gifs[i].img.hide();
+    //gifs[i].img.hide();
     i++;
   }
 }
