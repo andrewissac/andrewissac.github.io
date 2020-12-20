@@ -4,12 +4,7 @@ let y;
 let xspeed;
 let yspeed;
 
-let lights;
-let bbox;
-
-let pepe;
 let gifs = [];
-let r, g, b;
 
 let relativeGifHeight = 0.28;
 let relativeGifPosX = 0.53;
@@ -18,11 +13,21 @@ let relativeGifPosY = 0.64;
 let pr0plateHeight = 2000;
 let pr0plateWidth = 2000;
 
-let scaleFac = 0.15;
+let scaleFac = 0.125;
+let scaledParentHeight = Math.floor(pr0plateHeight * scaleFac);
+let scaledParentWidth = Math.floor(pr0plateWidth * scaleFac);
 
-let scaledParentHeight = pr0plateHeight * scaleFac;
-let scaledParentWidth = pr0plateWidth * scaleFac;
-const speed = 2;
+let plateAlpha = 1.0;
+let richtigesGrau = "#161618"
+let colorRotation = ["#ee4d2e", "#1db992", "#bfbc06", "#008fff", "#ff0082",]
+
+let merryXmasPosX;
+let merryXmasPosY;
+let dbPosX;
+let dbPosY;
+let dbScale = 0.02;
+
+const speed = 4;
 
 class Gif{
   constructor(img, w, h){
@@ -36,8 +41,8 @@ class Gif{
 function addScaledGifAndHide(gif){
   gif.hide();
   let { h, w } = getScaledImgDimensions(gif, relativeGifHeight, scaledParentHeight);
-  gif.size(h, w);
-  gifs.push(new Gif(gif, h, w));
+  gif.size(w, h);
+  gifs.push(new Gif(gif, w, h));
 }
 
 function getScaledImgDimensions(img, relativeHeight, scaledParentHeight_){
@@ -50,12 +55,17 @@ function getScaledImgDimensions(img, relativeHeight, scaledParentHeight_){
   }
   let h = relativeHeight * scaledParentHeight_;
   let w = h / aspectRatio;
+  let relativeWidth = w / scaledParentWidth;
+  if(relativeWidth > 0.28){
+    w = 0.28 * scaledParentWidth;
+  }
   return { h, w };
 }
 
 function preload() {
   merryXmas = loadImage('assets/gifs/merryXmas.gif');
   pr0Plate = loadImage('assets/onlypr0LogoPlate.png');
+  db = loadImage('assets/db.png');
   
   for(let i = 1; i <= 20; i++){
     createImg('assets/gifs/' + i.toString() + ".gif", "", "", addScaledGifAndHide);
@@ -70,6 +80,15 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+
+  db.height = db.height * dbScale;
+  db.width = db.width * dbScale;
+  dbPosX = random(0, windowWidth - db.width);
+  dbPosY = random(0, windowHeight - db.height);
+  console.log()
+
+  merryXmasPosX = Math.floor(windowWidth / 2 - merryXmas.width / 2);
+  merryXmasPosY =  Math.floor(windowHeight /2 - merryXmas.height / 2);
     
   pr0Plate.height = scaledParentHeight;
   pr0Plate.width = scaledParentWidth;
@@ -82,64 +101,68 @@ function setup() {
   y = random(0, height -  lights.height);
   xspeed = speed;
   yspeed = speed;
+
 }
 
 function pickColor() {
   h = random(0, 360);
 }
 
-var i = 0;
+function getRandomInt(max){
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+let gifIndex = getRandomInt(4);
+
+function OnWallHit(){
+  //gifs[gifIndex].img.hide();
+  pickColor();
+  dbPosX = random(0, windowWidth - db.width);
+  dbPosY = random(0, windowHeight - db.height);
+  gifIndex++;
+}
 
 function draw() {
-  background('#161618');
+  background(richtigesGrau);
+
   if (h > 360) {
     h = 0;
   }
 
-  if(i > 20){
-    i = 0;
+  if(gifIndex >= 20){
+    gifIndex = 0;
   }
 
-
-  image(merryXmas, 500,200);
-  tint(h, 70, 50);
+  image(db, dbPosX, dbPosY);
+  image(merryXmas, merryXmasPosX, merryXmasPosY);
+  tint(h, 70, 50, plateAlpha);
   image(pr0Plate,x,y);
   noTint();
-  gifs[i].img.show();
-  gifs[i].img.position(x + relativeGifPosX * pr0Plate.width, y + relativeGifPosY * pr0Plate.height - gifs[i].h);
+  gifs[gifIndex].img.show();
+  gifs[gifIndex].img.position(x + relativeGifPosX * pr0Plate.width, y + relativeGifPosY * pr0Plate.height - gifs[gifIndex].h);
 
   lights.position(x, y);
   h += 1;
-  fill(h, 100, 70);
-  // image  lights, x, y);
   x = x + xspeed;
   y = y + yspeed;
 
   if (x + lights.width >= width) {
     xspeed = -xspeed;
     x = width - lights.width;
-    pickColor();
-    //gifs[i].img.hide();
-    i++;
+    OnWallHit();
   } else if (x <= 0) {
     xspeed = -xspeed;
     x = 0;
-    pickColor();
-    //gifs[i].img.hide();
-    i++;
+    OnWallHit();
   }
 
   if (y + lights.height >= height) {
     yspeed = -yspeed;
     y = height -  lights.height;
-    pickColor();
-    //gifs[i].img.hide();
-    i++;
+    OnWallHit();
   } else if (y <= 0) {
     yspeed = -yspeed;
     y = 0;
-    pickColor();
-    //gifs[i].img.hide();
-    i++;
+    OnWallHit();
   }
 }
