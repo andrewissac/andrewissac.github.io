@@ -6,18 +6,19 @@ let yspeed;
 
 let gifs = [];
 
-let relativeGifHeight = 0.28;
-let relativeGifPosX = 0.53;
-let relativeGifPosY = 0.64;
+const relativeGifHeight = 0.28;
+const relativeGifPosX = 0.53;
+const relativeGifPosY = 0.64;
 
-let pr0plateHeight = 2000;
-let pr0plateWidth = 2000;
+const pr0plateHeight = 2000;
+const pr0plateWidth = 2000;
+const pepeGifCount = 20;
 
-let scaleFac = 0.125;
-let scaledParentHeight = Math.floor(pr0plateHeight * scaleFac);
-let scaledParentWidth = Math.floor(pr0plateWidth * scaleFac);
+const scaleFac = 0.125;
+const scaledParentHeight = Math.floor(pr0plateHeight * scaleFac);
+const scaledParentWidth = Math.floor(pr0plateWidth * scaleFac);
 
-let plateAlpha = 1.0;
+const plateAlpha = 1.0;
 let richtigesGrau = "#161618"
 let colorRotation = ["#ee4d2e", "#1db992", "#bfbc06", "#008fff", "#ff0082",]
 
@@ -25,8 +26,18 @@ let merryXmasPosX;
 let merryXmasPosY;
 let dbPosX;
 let dbPosY;
-let dbScale = 0.02;
+const dbScale = 0.02;
 
+let snow = [];
+let gravity;
+
+let zOff = 0;
+
+const badgeFileCount = 32;
+const snowFlakesOnScreenCount = 200;
+let snowFlakeTextures = [];
+
+// speed of the moving pr0 logo
 const speed = 4;
 
 class Gif{
@@ -66,13 +77,25 @@ function preload() {
   merryXmas = loadImage('assets/gifs/merryXmas.gif');
   pr0Plate = loadImage('assets/onlypr0LogoPlate.png');
   db = loadImage('assets/db.png');
+
+  for(let i = 1; i <= badgeFileCount; i++){
+    snowFlakeTextures.push(loadImage('assets/pr0badges/' + i.toString() + ".png"));
+  }
+
+  for(let i = 0; i <= 32; i++){
+    snowFlakeTextures.push(loadImage('assets/pr0badges/snowflake.png'));
+  }
+
+  for(let i = 0; i <= 12; i++){
+    snowFlakeTextures.push(loadImage('assets/pr0badges/wichtel.png'));
+  }
   
-  for(let i = 1; i <= 20; i++){
+  for(let i = 1; i <= pepeGifCount; i++){
     createImg('assets/gifs/' + i.toString() + ".gif", "", "", addScaledGifAndHide);
   }
   lights = createImg('assets/gifs/pr0Lights_pattern_Full.gif');
   
-  for(let i = 1; i <= 20; i++){
+  for(let i = 1; i <= pepeGifCount; i++){
     gifs[i].img.hide();
   }
 }
@@ -85,7 +108,6 @@ function setup() {
   db.width = db.width * dbScale;
   dbPosX = random(0, windowWidth - db.width);
   dbPosY = random(0, windowHeight - db.height);
-  console.log()
 
   merryXmasPosX = Math.floor(windowWidth / 2 - merryXmas.width / 2);
   merryXmasPosY =  Math.floor(windowHeight /2 - merryXmas.height / 2);
@@ -102,6 +124,14 @@ function setup() {
   xspeed = speed;
   yspeed = speed;
 
+  // snow
+  gravity = createVector(0, 0.2);
+  for (let i = 0; i < snowFlakesOnScreenCount; i++) {
+    let x = random(width);
+    let y = random(height);
+    let design = random(snowFlakeTextures);
+    snow.push(new Snowflake(x, y, design));
+  }
 }
 
 function pickColor() {
@@ -129,7 +159,7 @@ function draw() {
     h = 0;
   }
 
-  if(gifIndex >= 20){
+  if(gifIndex >= pepeGifCount){
     gifIndex = 0;
   }
 
@@ -164,5 +194,21 @@ function draw() {
     yspeed = -yspeed;
     y = 0;
     OnWallHit();
+  }
+
+  // snow
+  zOff += 0.1;
+
+  for (flake of snow) {
+    let xOff = flake.pos.x / width;
+    let yOff = flake.pos.y / height;
+    let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
+    let wind = p5.Vector.fromAngle(wAngle);
+    wind.mult(0.1);
+
+    flake.applyForce(gravity);
+    flake.applyForce(wind);
+    flake.update();
+    flake.render();
   }
 }
