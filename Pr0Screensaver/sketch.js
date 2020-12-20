@@ -60,7 +60,7 @@ function preload() {
   for(let i = 1; i <= 20; i++){
     createImg('assets/gifs/' + i.toString() + ".gif", "", "", addScaledGifAndHide);
   }
-  lights = createImg('assets/pr0Lights_pattern_full.gif');
+  lights = createImg('assets/gifs/pr0Lights_pattern_Full.gif');
   
   for(let i = 1; i <= 20; i++){
     gifs[i].img.hide();
