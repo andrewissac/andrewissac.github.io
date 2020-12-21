@@ -6,7 +6,7 @@
 // Edited Video: https://youtu.be/cl-mHFCGzYk
 
 function getRandomSize() {
-    let r = pow(random(0, 1), 3);
+    let r = pow(random(0, 1), 2.5);
     return constrain(r * 32, 2, 32);
 }
   
@@ -32,7 +32,7 @@ class Snowflake {
         this.acc.add(f);
     }
 
-    randomize() {
+    randomizeState() {
         let x = random(width);
         let y = random(-100, -10);
         this.pos = createVector(x, y);
@@ -41,29 +41,36 @@ class Snowflake {
         this.r = getRandomSize();
     }
 
-    update() {
+    setNewImg(img){
+        this.img = img
+    }
+
+    update(newImg = null) {
         this.xOff = sin(this.angle * 2) * 2 * this.r;
 
         this.vel.add(this.acc);
         this.vel.limit(this.r * 0.2);
 
         if (this.vel.mag() < 1) {
-        this.vel.normalize();
+            this.vel.normalize();
         }
 
         this.pos.add(this.vel);
         this.acc.mult(0);
 
         if (this.pos.y > height + this.r) {
-        this.randomize();
+            this.randomizeState();
+            if(newImg !== null){
+                this.img = newImg;
+            }
         }
 
         // Wrapping Left and Right
         if (this.pos.x < -this.r) {
-        this.pos.x = width + this.r;
+            this.pos.x = width + this.r;
         }
         if (this.pos.x > width + this.r) {
-        this.pos.x = -this.r;
+            this.pos.x = -this.r;
         }
 
         this.angle += (this.dir * this.vel.mag()) / 200;

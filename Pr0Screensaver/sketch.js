@@ -28,14 +28,20 @@ let dbPosY;
 const dbScale = 0.02;
 
 let snow = [];
+let wichtel = [];
+let badges = [];
 let gravity;
 
 let zOff = 0;
 
 const pepeGifCount = 46;
 const badgeFileCount = 32;
-const snowFlakesOnScreenCount = 200;
-let snowFlakeTextures = [];
+const snowFlakesOnScreenCount = 100;
+const badgesOnScreenCount = 40;
+const wichtelOnScreenCount = 10;
+let snowFlakeTexture;
+let badgeTextures = [];
+let wichtelTexture;
 
 // speed of the moving pr0 logo
 const speed = 4;
@@ -78,16 +84,10 @@ function preload() {
   pr0Plate = loadImage('assets/onlypr0LogoPlate.png');
   db = loadImage('assets/db.png');
 
+  snowFlakeTexture = loadImage('assets/pr0badges/snowflake.png');
+  wichtelTexture = loadImage('assets/pr0badges/wichtel.png');
   for(let i = 1; i <= badgeFileCount; i++){
-    snowFlakeTextures.push(loadImage('assets/pr0badges/' + i.toString() + ".png"));
-  }
-
-  for(let i = 0; i <= 64; i++){
-    snowFlakeTextures.push(loadImage('assets/pr0badges/snowflake.png'));
-  }
-
-  for(let i = 0; i <= 12; i++){
-    snowFlakeTextures.push(loadImage('assets/pr0badges/wichtel.png'));
+    badgeTextures.push(loadImage('assets/pr0badges/' + i.toString() + ".png"));
   }
   
   for(let i = 1; i <= pepeGifCount; i++){
@@ -129,8 +129,17 @@ function setup() {
   for (let i = 0; i < snowFlakesOnScreenCount; i++) {
     let x = random(width);
     let y = random(height);
-    let design = random(snowFlakeTextures);
-    snow.push(new Snowflake(x, y, design));
+    snow.push(new Snowflake(x, y, snowFlakeTexture));
+  }
+  for (let i = 0; i < wichtelOnScreenCount; i++) {
+    let x = random(width);
+    let y = random(height);
+    wichtel.push(new Snowflake(x, y, wichtelTexture));
+  }
+  for (let i = 0; i < badgesOnScreenCount; i++) {
+    let x = random(width);
+    let y = random(height);
+    badges.push(new Snowflake(x, y, random(badgeTextures)));
   }
 }
 
@@ -210,5 +219,31 @@ function draw() {
     flake.applyForce(wind);
     flake.update();
     flake.render();
+  }
+
+  for (badge of badges) {
+    let xOff = badge.pos.x / width;
+    let yOff = badge.pos.y / height;
+    let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
+    let wind = p5.Vector.fromAngle(wAngle);
+    wind.mult(0.1);
+
+    badge.applyForce(gravity);
+    badge.applyForce(wind);
+    badge.update(random(badgeTextures));
+    badge.render();
+  }
+
+  for (box of wichtel) {
+    let xOff = box.pos.x / width;
+    let yOff = box.pos.y / height;
+    let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
+    let wind = p5.Vector.fromAngle(wAngle);
+    wind.mult(0.1);
+
+    box.applyForce(gravity);
+    box.applyForce(wind);
+    box.update();
+    box.render();
   }
 }
