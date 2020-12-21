@@ -36,9 +36,9 @@ let zOff = 0;
 
 const pepeGifCount = 46;
 const badgeFileCount = 32;
-const snowFlakesOnScreenCount = 100;
-const badgesOnScreenCount = 40;
-const wichtelOnScreenCount = 10;
+const snowFlakesOnScreenCount = 113;
+const badgesOnScreenCount = 32;
+const wichtelOnScreenCount = 12;
 let snowFlakeTexture;
 let badgeTextures = [];
 let wichtelTexture;
@@ -207,6 +207,9 @@ function draw() {
 
   // snow
   zOff += 0.1;
+  mouseVec = createVector(mouseX - width/2, mouseY - height/2).normalize();
+  mouseVec.x = mouseVec.x * 0.2;
+  mouseVec.y = mouseVec.y * 0.2;
 
   for (flake of snow) {
     let xOff = flake.pos.x / width;
@@ -230,6 +233,12 @@ function draw() {
 
     badge.applyForce(gravity);
     badge.applyForce(wind);
+    if(mouseIsPressed){
+      let mouseForce = createVector(mouseX - badge.pos.x, mouseY - badge.pos.y).normalize()
+      mouseForce.x = mouseForce.x * 0.4;
+      mouseForce.y = mouseForce.y * 0.4;
+      badge.applyForce(mouseForce);
+    }
     badge.update(random(badgeTextures));
     badge.render();
   }
@@ -243,6 +252,12 @@ function draw() {
 
     box.applyForce(gravity);
     box.applyForce(wind);
+    if(mouseIsPressed){
+      let mouseForce = createVector(mouseX - box.pos.x, mouseY - box.pos.y).normalize()
+      mouseForce.x = mouseForce.x * 0.4;
+      mouseForce.y = mouseForce.y * 0.4;
+      box.applyForce(mouseForce);
+    }
     box.update();
     box.render();
   }
