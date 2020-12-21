@@ -12,7 +12,6 @@ const relativeGifPosY = 0.64;
 
 const pr0plateHeight = 2000;
 const pr0plateWidth = 2000;
-const pepeGifCount = 20;
 
 const scaleFac = 0.125;
 const scaledParentHeight = Math.floor(pr0plateHeight * scaleFac);
@@ -33,6 +32,7 @@ let gravity;
 
 let zOff = 0;
 
+const pepeGifCount = 46;
 const badgeFileCount = 32;
 const snowFlakesOnScreenCount = 200;
 let snowFlakeTextures = [];
@@ -82,7 +82,7 @@ function preload() {
     snowFlakeTextures.push(loadImage('assets/pr0badges/' + i.toString() + ".png"));
   }
 
-  for(let i = 0; i <= 32; i++){
+  for(let i = 0; i <= 64; i++){
     snowFlakeTextures.push(loadImage('assets/pr0badges/snowflake.png'));
   }
 
