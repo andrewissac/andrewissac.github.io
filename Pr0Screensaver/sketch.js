@@ -11,27 +11,20 @@ let clr;
 
 let gifs = [];
 
-const relativeGifHeight = 0.28;
-const relativeGifPosX = 0.53;
-const relativeGifPosY = 0.64;
+const relativeGif = {x: 0.53, y: 0.64, h: 0.28}
 
 const pr0plateHeight = 2000; // hardcoded, sucks but fuck p5 async loading mess
 const pr0plateWidth = 2000;
 
 const scaleFac = 0.125;
-const scaledParentHeight = Math.floor(pr0plateHeight * scaleFac);
-const scaledParentWidth = Math.floor(pr0plateWidth * scaleFac);
+const scaledPlate = {h:  Math.floor(pr0plateHeight * scaleFac), w:  Math.floor(pr0plateWidth * scaleFac)}
 
 const plateAlpha = 1.0;
 let richtigesGrau = "#161618"
 let colorRotation = ["#ee4d2e", "#1db992", "#bfbc06", "#008fff", "#ff0082",]
 
-let merryXmasPosX;
-let merryXmasPosY;
-let dbPosX;
-let dbPosY;
-let tempdbPosX;
-let tempdbPosY;
+let dbPos = {x, y};
+let tempdbPos = {x, y};
 const dbScale = 0.015;
 
 let snow = [];
@@ -56,129 +49,16 @@ let resetPeepoTimer = null;
 let resetPeepoTimerIsRunning = false;
 const resetPeepoCountdownStart = 10;
 let resetPeepoCountdown;
-let mouseInsideResetPeepoRegion;
-let resetRectHeight;
-let resetRectWidth;
-let resetRectPosX;
-let resetRectPosY;
+let mouseInsideResetPeepoRegion = false;
+let resetRect = {x: 0, y: 0, h: 0, w: 0};
+
+let mousePos = {x, y};
 const borderThreshold = 0;
-
-function getScaledImgDimensions(img, relativeHeight, scaledParentHeight_){
-  let aspectRatio = 0;
-  if (img.width >= img.height){
-    aspectRatio = img.height / img.width;
-  }
-  else{
-    aspectRatio = img.width / img.height;
-  }
-  let h = relativeHeight * scaledParentHeight_;
-  let w = h / aspectRatio;
-  let relativeWidth = w / scaledParentWidth;
-  if(relativeWidth > 0.28){
-    w = 0.28 * scaledParentWidth;
-  }
-  return { w, h };
-}
-
-function preload() {
-  monkaS = createImg('assets/gifs/monkaS.gif', 'sadge :(', 'anonymous', img => {
-    img.size(30, 30);
-    img.position(width - 200 , 15);
-    img.hide();
-  });
-
-  sadge = createImg('assets/gifs/sadge.gif', 'sadge :(', 'anonymous', img => {
-    img.size(45, 45);
-    img.position(width - 70, 15);
-    img.hide();
-  });
-
-  ricardo = createImg('assets/gifs/ricardo.gif', 'sadge :(', 'anonymous', img => {
-    img.size(30, 30);
-    img.position(width - 150, 150);
-    img.hide();
-  });
-
-  db = createImg('assets/db.png', 'sadge :(', 'anonymous', img => {
-    img.size(img.width * dbScale, img.height * dbScale);
-    randomDbPos();
-    img.position(dbPosX, dbPosY);
-  });
-
-  merryXmas = createImg('assets/gifs/merryXmas.gif', 'sadge :(', 'anonymous', img => {
-    img.position(width / 2 - img.width / 2, height /2 - img.height / 2)
-  });
-
-  pr0Plate = createImg('assets/Pr0gramm_Logo_transp.png', 'sadge :(', 'anonymous', img => {
-    img.size(scaledParentWidth , scaledParentHeight);
-  });
-
-  snowFlakeTexture = createImg('assets/pr0badges/snowflake.png', 'sadge :(', 'anonymous').hide();
-  wichtelTexture = createImg('assets/pr0badges/wichtel.png', 'sadge :(', 'anonymous').hide();
-  for(let i = 1; i <= badgeFileCount; i++){
-    badgeTextures.push(createImg('assets/pr0badges/' + i.toString() + ".png", 'sadge :(', 'anonymous').hide());
-  }
-  
-  for(let i = 1; i <= pepeGifCount; i++){
-    gifs.push(createImg('assets/gifs/' + i.toString() + ".gif", 'sadge :(', 'anonymous', gif => {
-      gif.hide();
-      let { w, h } = getScaledImgDimensions(gif, relativeGifHeight, scaledParentHeight);
-      gif.size(w, h);
-    }));
-  }
-  lights = createImg('assets/gifs/pr0Lights_pattern_Full.gif', 'sadge :(', 'anonymous', img => {
-    img.size(scaledParentWidth, scaledParentHeight);
-  });
-}
-
-
-function setup() {
-  cnv = createCanvas(windowWidth, windowHeight);
-
-  frameRate(60);
-  textFont('Helvetica');
-  colorMode(HSL, 360, 100, 100)
-  pickColor();
-  clr = color(hue, 70, 50);
-
-  // set reset peepo region
-  resetRectHeight = 100;
-  resetRectWidth = 150;
-  resetRectPosY = 0;
-  resetRectPosX = width - resetRectWidth;
-  mouseInsideResetPeepoRegion = false;
-
-  // initialize pr0-sign position and direction
-  x = random(0, width - scaledParentWidth - 30);
-  y = random(0, height - scaledParentHeight - 30);
-  xspeed = speed * getRandomSign();
-  yspeed = speed * getRandomSign();
-
-  // initialize snow
-  gravity = createVector(0, 0.3);
-  for (let i = 0; i < snowFlakesOnScreenCount; i++) {
-    let x = random(width);
-    let y = random(height);
-    snow.push(new Snowflake(x, y, snowFlakeTexture));
-  }
-  for (let i = 0; i < wichtelOnScreenCount; i++) {
-    let x = random(width);
-    let y = random(height);
-    wichtel.push(new Snowflake(x, y, wichtelTexture));
-  }
-  for (let i = 0; i < badgesOnScreenCount; i++) {
-    let x = random(width);
-    let y = random(height);
-    badges.push(new Snowflake(x, y, random(badgeTextures)));
-  }
-  // randomize 
-  gifIndex = getRandomInt(pepeGifCount-1);
-}
 
 function mouseInResetPeepoRegion(mx, my){
   if(mx > 0 & my > 0 & mx < width & my < height){
-    if(mx > resetRectPosX & mx < (resetRectPosX + resetRectWidth)){
-      if(my > resetRectPosY & my < (resetRectPosY + resetRectHeight)){
+    if(mx > resetRect.x & mx < (resetRect.x + resetRect.w)){
+      if(my > resetRect.y & my < (resetRect.y + resetRect.h)){
         return true;
       }
     }
@@ -199,8 +79,8 @@ function getRandomInt(max){
 }
 
 function randomDbPos(){
-  dbPosX = random(0, windowWidth - db.width);
-  dbPosY = random(0, windowHeight - db.height);
+  dbPos.x = random(0, windowWidth - db.width);
+  dbPos.y = random(0, windowHeight - db.height);
 }
 
 function onWallHit(){
@@ -235,6 +115,115 @@ function stopResetPeepoTimer(){
   resetPeepoTimer = null;
 }
 
+function getScaledImgDimensions(img, relativeHeight, scaledParent){
+  let aspectRatio = 0;
+  if (img.width >= img.height){
+    aspectRatio = img.height / img.width;
+  }
+  else{
+    aspectRatio = img.width / img.height;
+  }
+  let h = relativeHeight * scaledParent.h;
+  let w = h / aspectRatio;
+  let relativeWidth = w / scaledParent.w;
+  if(relativeWidth > 0.28){
+    w = 0.28 * scaledParent.w;
+  }
+  return { w, h };
+}
+
+function preload() {
+  monkaS = createImg('assets/gifs/monkaS.gif', 'sadge :(', 'anonymous', img => {
+    img.size(30, 30);
+    img.position(width - 200 , 15);
+    img.hide();
+  });
+
+  sadge = createImg('assets/gifs/sadge.gif', 'sadge :(', 'anonymous', img => {
+    img.size(45, 45);
+    img.position(width - 70, 15);
+    img.hide();
+  });
+
+  ricardo = createImg('assets/gifs/ricardo.gif', 'sadge :(', 'anonymous', img => {
+    img.size(30, 30);
+    img.position(width - 150, 150);
+    img.hide();
+  });
+
+  db = createImg('assets/db.png', 'sadge :(', 'anonymous', img => {
+    img.size(img.width * dbScale, img.height * dbScale);
+    randomDbPos();
+    img.position(dbPos.x, dbPos.y);
+  });
+
+  merryXmas = createImg('assets/gifs/merryXmas.gif', 'sadge :(', 'anonymous', img => {
+    img.position(width / 2 - img.width / 2, height /2 - img.height / 2)
+  });
+
+  pr0Plate = createImg('assets/Pr0gramm_Logo_transp.png', 'sadge :(', 'anonymous', img => {
+    img.size(scaledPlate.w , scaledPlate.h);
+  });
+
+  snowFlakeTexture = createImg('assets/pr0badges/snowflake.png', 'sadge :(', 'anonymous').hide();
+  wichtelTexture = createImg('assets/pr0badges/wichtel.png', 'sadge :(', 'anonymous').hide();
+  for(let i = 1; i <= badgeFileCount; i++){
+    badgeTextures.push(createImg('assets/pr0badges/' + i.toString() + ".png", 'sadge :(', 'anonymous').hide());
+  }
+  
+  for(let i = 1; i <= pepeGifCount; i++){
+    gifs.push(createImg('assets/gifs/' + i.toString() + ".gif", 'sadge :(', 'anonymous', gif => {
+      gif.hide();
+      let { w, h } = getScaledImgDimensions(gif, relativeGif.h, scaledPlate);
+      gif.size(w, h);
+    }));
+  }
+  lights = createImg('assets/gifs/pr0Lights_pattern_Full.gif', 'sadge :(', 'anonymous', img => {
+    img.size(scaledPlate.w, scaledPlate.h);
+  });
+}
+
+
+function setup() {
+  cnv = createCanvas(windowWidth, windowHeight);
+
+  frameRate(60);
+  textFont('Helvetica');
+  colorMode(HSL, 360, 100, 100)
+  pickColor();
+  clr = color(hue, 70, 50);
+
+  // set reset peepo region
+  rectWidth= 150;
+  resetRect = {x: width-rectWidth, y: 0, h: 100, w: rectWidth};
+
+  // initialize pr0-sign position and direction
+  x = random(0, width - scaledPlate.w - 30);
+  y = random(0, height - scaledPlate.h - 30);
+  xspeed = speed * getRandomSign();
+  yspeed = speed * getRandomSign();
+
+  // initialize snow
+  gravity = createVector(0, 0.000000002);
+  for (let i = 0; i < snowFlakesOnScreenCount; i++) {
+    let x = random(width);
+    let y = random(height);
+    snow.push(new Snowflake(x, y, snowFlakeTexture));
+  }
+  for (let i = 0; i < wichtelOnScreenCount; i++) {
+    let x = random(width);
+    let y = random(height);
+    wichtel.push(new Snowflake(x, y, wichtelTexture));
+  }
+  for (let i = 0; i < badgesOnScreenCount; i++) {
+    let x = random(width);
+    let y = random(height);
+    badges.push(new Snowflake(x, y, random(badgeTextures)));
+  }
+  // randomize 
+  gifIndex = getRandomInt(pepeGifCount-1);
+}
+
 let nope = 0;
 
 function draw() {
@@ -243,11 +232,11 @@ function draw() {
   fill(40);
   text(int(getFrameRate()), width - 20, 15); 
 
-  let mx = mouseX;
-  let my = mouseY;
-  mouseInsideResetPeepoRegion = mouseInResetPeepoRegion(mx, my);
+  mousePos.x = mouseX;
+  mousePos.y = mouseY;
+  mouseInsideResetPeepoRegion = mouseInResetPeepoRegion(mousePos.x, mousePos.y);
 
-  // handle reset peepos
+  // handle reset peepos since wallpaper engine does not allow keyboard input...
   if(mouseIsPressed & mouseButton === LEFT){
     if(mouseInsideResetPeepoRegion){
       startResetPeepoTimer();
@@ -279,15 +268,17 @@ function draw() {
     gifIndex = 0;
   }
 
-  let dbMouseDist = sqrt(pow((dbPosX - mx),2) + pow((dbPosY - my), 2))
+   // handle if mouse gets too close to db.. 
+   // TODO: use timer instead of counting frames.
+  let dbMouseDist = sqrt(pow((dbPos.x - mousePos.x),2) + pow((dbPos.y - mousePos.y), 2))
   if(dbMouseDist < db.elt.height + 12){
-    tempdbPosX = dbPosX;
-    tempdbPosY = dbPosY;
+    tempdbPos.x = dbPos.x;
+    tempdbPos.y = dbPos.y;
     nope = 210;
     randomDbPos();
   }
   if(nope > 0){
-    ricardo.position(tempdbPosX, tempdbPosY);
+    ricardo.position(tempdbPos.x, tempdbPos.y);
     ricardo.show();
     nope--;
   }
@@ -295,20 +286,20 @@ function draw() {
     ricardo.hide();
   }
 
-  // handle user moving pr0-sign
+  // handle user moving pr0-sign with out of boundary checks
   if(mouseIsPressed & mouseButton === CENTER){
-    x = mouseX > width - scaledParentWidth ? width - scaledParentWidth  : mouseX < borderThreshold ? borderThreshold : mouseX;
-    y = mouseY > height - scaledParentHeight ? height - scaledParentHeight : mouseY < borderThreshold ? borderThreshold : mouseY;
+    x = mousePos.x > width - scaledPlate.w ? width - scaledPlate.w  : mousePos.x < borderThreshold ? borderThreshold : mousePos.x;
+    y = mousePos.y > height - scaledPlate.h ? height - scaledPlate.h : mousePos.y < borderThreshold ? borderThreshold : mousePos.y;
     xspeed = speed * getRandomSign();
     yspeed = speed * getRandomSign();
   }
 
   // move all objects
-  db.position(dbPosX, dbPosY);
+  db.position(dbPos.x, dbPos.y);
   merryXmas.position(merryXmas.position.x, merryXmas.position.y);
   pr0Plate.position(x,y);
   gifs[gifIndex].show();
-  gifs[gifIndex].position(x + relativeGifPosX * pr0Plate.width, y + relativeGifPosY * pr0Plate.height - gifs[gifIndex].elt.height);
+  gifs[gifIndex].position(x + relativeGif.x * pr0Plate.width, y + relativeGif.y * pr0Plate.height - gifs[gifIndex].elt.height);
   lights.position(x, y);
 
   hue += 1;
@@ -339,7 +330,7 @@ function draw() {
 
   // snow
   zOff += 0.1;
-  mouseVec = createVector(mx - width/2, my - height/2).normalize();
+  mouseVec = createVector(mousePos.x - width/2, mousePos.y - height/2).normalize();
   mouseVec.x = mouseVec.x * 0.2;
   mouseVec.y = mouseVec.y * 0.2;
 
@@ -367,7 +358,9 @@ function draw() {
     //badge.applyForce(wind);
     if(mouseIsPressed & !mouseInsideResetPeepoRegion){
       if(mouseButton === LEFT){
-        let mouseForce = createVector(mx - badge.pos.x, my - badge.pos.y).normalize().mult(0.4);
+        let mouseForce = createVector(mousePos.x - badge.pos.x, mousePos.y - badge.pos.y).normalize();
+        mouseForce.x = mouseForce.x * 0.4;
+        mouseForce.y = mouseForce.y * 0.4;
         badge.applyForce(mouseForce);
       }
     }
@@ -386,7 +379,9 @@ function draw() {
     //box.applyForce(wind);
     if(mouseIsPressed & !mouseInsideResetPeepoRegion){
       if(mouseButton === LEFT){
-        let mouseForce = createVector(mx - box.pos.x, my - box.pos.y).normalize().mult(0.4);
+        let mouseForce = createVector(mousePos.x - box.pos.x, mousePos.y - box.pos.y).normalize();
+        mouseForce.x = mouseForce.x * 0.4;
+        mouseForce.y = mouseForce.y * 0.4;
         box.applyForce(mouseForce);
       }
     }
