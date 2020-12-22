@@ -41,15 +41,11 @@ class Snowflake {
         this.r = getRandomSize();
     }
 
-    setNewImg(img){
-        this.img = img
-    }
-
     update(newImg = null) {
         this.xOff = sin(this.angle * 2) * 2 * this.r;
 
         this.vel.add(this.acc);
-        this.vel.limit(this.r * 0.2);
+        this.vel.limit(this.r * 0.075);
 
         if (this.vel.mag() < 1) {
             this.vel.normalize();
