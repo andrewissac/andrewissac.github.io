@@ -1,8 +1,10 @@
+let cnv;
 let x;
 let y;
 
 let xspeed;
 let yspeed;
+
 
 let hue;
 let clr;
@@ -54,6 +56,12 @@ let resetPeepoTimer = null;
 let resetPeepoTimerIsRunning = false;
 const resetPeepoCountdownStart = 10;
 let resetPeepoCountdown;
+let mouseInsideResetPeepoRegion;
+let resetRectHeight;
+let resetRectWidth;
+let resetRectPosX;
+let resetRectPosY;
+const borderThreshold = 0;
 
 function getScaledImgDimensions(img, relativeHeight, scaledParentHeight_){
   let aspectRatio = 0;
@@ -125,15 +133,22 @@ function preload() {
 
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  cnv = createCanvas(windowWidth, windowHeight);
+
   frameRate(60);
-
   textFont('Helvetica');
-
   colorMode(HSL, 360, 100, 100)
   pickColor();
   clr = color(hue, 70, 50);
 
+  // set reset peepo region
+  resetRectHeight = 100;
+  resetRectWidth = 150;
+  resetRectPosY = 0;
+  resetRectPosX = width - resetRectWidth;
+  mouseInsideResetPeepoRegion = false;
+
+  // initialize pr0-sign position and direction
   x = random(0, width - scaledParentWidth - 30);
   y = random(0, height - scaledParentHeight - 30);
   xspeed = speed * getRandomSign();
@@ -160,6 +175,17 @@ function setup() {
   gifIndex = getRandomInt(pepeGifCount-1);
 }
 
+function mouseInResetPeepoRegion(mx, my){
+  if(mx > 0 & my > 0 & mx < width & my < height){
+    if(mx > resetRectPosX & mx < (resetRectPosX + resetRectWidth)){
+      if(my > resetRectPosY & my < (resetRectPosY + resetRectHeight)){
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function pickColor() {
   hue = random(0, 360);
 }
@@ -183,13 +209,6 @@ function onWallHit(){
   gifIndex++;
 }
 
-function doubleClicked(){
-  x = mouseX > width - scaledParentWidth ? width - scaledParentWidth - 5 : mouseX;
-  y = mouseY > height - scaledParentHeight ? height - scaledParentHeight -5 : mouseY;
-  xspeed = speed * getRandomSign();
-  yspeed = speed * getRandomSign();
-}
-
 function resetPeepoTick(){
   if(resetPeepoCountdown > 0){
     resetPeepoCountdown--;
@@ -204,45 +223,52 @@ function resetPeepoTick(){
   }
 }
 
-function startresetPeepoTimer(){
-  if(resetPeepoTimer !== null) return;
+function startResetPeepoTimer(){
+  if(resetPeepoTimer !== null || resetPeepoTimerIsRunning === true) return;
   resetPeepoCountdown = resetPeepoCountdownStart;
   resetPeepoTimerIsRunning = true;
   resetPeepoTimer = setInterval(resetPeepoTick, 1000);
 }
 
-
-function mousePressed(event){
-  if(event.ctrlKey){
-    startresetPeepoTimer();
-  }
-}
-
-function mouseReleased(event){
-  if(event.ctrlKey){
-    if(resetPeepoCountdown <= 0){
-      // reset peepos (ಥ﹏ಥ)
-      for(let i = 0; i < pepeGifCount; i++){
-        if(i !== gifIndex){
-          gifs[i].hide();
-        }
-      }
-    }
-  }
-  resetPeepoTimerIsRunning = false;
-  monkaS.hide();
-  sadge.hide();
+function stopResetPeepoTimer(){
+  clearInterval(resetPeepoTimer);
+  resetPeepoTimer = null;
 }
 
 let nope = 0;
 
 function draw() {
   background(richtigesGrau);
-
+  // display framerate
   fill(40);
   text(int(getFrameRate()), width - 20, 15); 
-  if(resetPeepoTimerIsRunning){
-    text(`Reset peepos in     ${resetPeepoCountdown}`, width - 160, 35 );
+
+  let mx = mouseX;
+  let my = mouseY;
+  mouseInsideResetPeepoRegion = mouseInResetPeepoRegion(mx, my);
+
+  // handle reset peepos
+  if(mouseIsPressed & mouseButton === LEFT){
+    if(mouseInsideResetPeepoRegion){
+      startResetPeepoTimer();
+    }
+    if(resetPeepoTimerIsRunning){
+      text(`Reset peepos in     ${resetPeepoCountdown}`, width - 160, 35 );
+    }
+  }
+  else{
+    stopResetPeepoTimer();
+    // reset peepos (ಥ﹏ಥ)
+    if(resetPeepoTimerIsRunning & resetPeepoCountdown <= 0){
+      for(let i = 0; i < pepeGifCount; i++){
+        if(i !== gifIndex){
+          gifs[i].hide();
+        }
+      }
+    }
+    resetPeepoTimerIsRunning = false;
+    monkaS.hide();
+    sadge.hide();
   }
   
   if (hue > 360) {
@@ -253,7 +279,7 @@ function draw() {
     gifIndex = 0;
   }
 
-  let dbMouseDist = sqrt(pow((dbPosX - mouseX),2) + pow((dbPosY - mouseY), 2))
+  let dbMouseDist = sqrt(pow((dbPosX - mx),2) + pow((dbPosY - my), 2))
   if(dbMouseDist < db.elt.height + 12){
     tempdbPosX = dbPosX;
     tempdbPosY = dbPosY;
@@ -269,6 +295,15 @@ function draw() {
     ricardo.hide();
   }
 
+  // handle user moving pr0-sign
+  if(mouseIsPressed & mouseButton === CENTER){
+    x = mouseX > width - scaledParentWidth ? width - scaledParentWidth  : mouseX < borderThreshold ? borderThreshold : mouseX;
+    y = mouseY > height - scaledParentHeight ? height - scaledParentHeight : mouseY < borderThreshold ? borderThreshold : mouseY;
+    xspeed = speed * getRandomSign();
+    yspeed = speed * getRandomSign();
+  }
+
+  // move all objects
   db.position(dbPosX, dbPosY);
   merryXmas.position(merryXmas.position.x, merryXmas.position.y);
   pr0Plate.position(x,y);
@@ -279,8 +314,10 @@ function draw() {
   hue += 1;
   clr = color(hue, 70, 50);
 
+  // update position of pr0-sign
   x = x + xspeed;
   y = y + yspeed;
+  // wall collision checks
   if (x + lights.width >= width) {
     xspeed = -xspeed;
     x = width - lights.width;
@@ -302,16 +339,16 @@ function draw() {
 
   // snow
   zOff += 0.1;
-  mouseVec = createVector(mouseX - width/2, mouseY - height/2).normalize();
+  mouseVec = createVector(mx - width/2, my - height/2).normalize();
   mouseVec.x = mouseVec.x * 0.2;
   mouseVec.y = mouseVec.y * 0.2;
 
   for (flake of snow) {
-    let xOff = flake.pos.x / width;
-    let yOff = flake.pos.y / height;
-    let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
-    let wind = p5.Vector.fromAngle(wAngle);
-    wind.mult(0.1);
+    // let xOff = flake.pos.x / width;
+    // let yOff = flake.pos.y / height;
+    // let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
+    // let wind = p5.Vector.fromAngle(wAngle);
+    // wind.mult(0.1);
 
     flake.applyForce(gravity);
     //flake.applyForce(wind);
@@ -320,37 +357,38 @@ function draw() {
   }
 
   for (badge of badges) {
-    let xOff = badge.pos.x / width;
-    let yOff = badge.pos.y / height;
-    let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
-    let wind = p5.Vector.fromAngle(wAngle);
-    wind.mult(0.1);
-
+    // let xOff = badge.pos.x / width;
+    // let yOff = badge.pos.y / height;
+    // let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
+    // let wind = p5.Vector.fromAngle(wAngle);
+    // wind.mult(0.1);
+    
     badge.applyForce(gravity);
-    badge.applyForce(wind);
-    if(mouseIsPressed){
-      let mouseForce = createVector(mouseX - badge.pos.x, mouseY - badge.pos.y).normalize()
-      mouseForce.mult(0.4);
-      badge.applyForce(mouseForce);
+    //badge.applyForce(wind);
+    if(mouseIsPressed & !mouseInsideResetPeepoRegion){
+      if(mouseButton === LEFT){
+        let mouseForce = createVector(mx - badge.pos.x, my - badge.pos.y).normalize().mult(0.4);
+        badge.applyForce(mouseForce);
+      }
     }
     badge.update(random(badgeTextures));
     badge.render();
   }
 
   for (box of wichtel) {
-    let xOff = box.pos.x / width;
-    let yOff = box.pos.y / height;
-    let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
-    let wind = p5.Vector.fromAngle(wAngle);
-    wind.mult(0.1);
+    // let xOff = box.pos.x / width;
+    // let yOff = box.pos.y / height;
+    // let wAngle = noise(xOff, yOff, zOff) * TWO_PI;
+    // let wind = p5.Vector.fromAngle(wAngle);
+    // wind.mult(0.1);
 
     box.applyForce(gravity);
-    box.applyForce(wind);
-    if(mouseIsPressed){
-      let mouseForce = createVector(mouseX - box.pos.x, mouseY - box.pos.y).normalize()
-      mouseForce.x = mouseForce.x * 0.4;
-      mouseForce.y = mouseForce.y * 0.4;
-      box.applyForce(mouseForce);
+    //box.applyForce(wind);
+    if(mouseIsPressed & !mouseInsideResetPeepoRegion){
+      if(mouseButton === LEFT){
+        let mouseForce = createVector(mx - box.pos.x, my - box.pos.y).normalize().mult(0.4);
+        box.applyForce(mouseForce);
+      }
     }
     box.update();
     box.render();
