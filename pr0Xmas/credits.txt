@@ -1,3 +1,5 @@
-https://github.com/CodingTrain/website/tree/main/CodingChallenges/CC_088_snowfall/P5
-gifs: betterttv
+project based on:
+https://thecodingtrain.com/CodingChallenges/088-snowfall.html
+https://thecodingtrain.com/CodingChallenges/131-bouncing-dvd-logo.html
+https://betterttv.com/emotes/top 
 https://holzmaster.github.io/userscripts/eckdaten/
