@@ -46,12 +46,18 @@ let wichtelTexture;
 // speed of the moving pr0 logo
 const speed = 1.5;
 
+// reset Peepos
 let resetPeepoTimer = null;
 let resetPeepoTimerIsRunning = false;
 const resetPeepoCountdownStart = 10;
 let resetPeepoCountdown;
 let mouseInsideResetPeepoRegion = false;
-let resetRect = {x: 0, y: 0, h: 0, w: 0};
+let resetRegion = {x: 0, y: 0, h: 0, w: 0};
+
+// circumvent Wallpaper Engine keyboard/mouse input restrictions
+let movePr0PlateRegion = {x: 0, y: 0, h: 0, w: 0};
+let mouseInsideMovePr0PlateRegion = false;
+let movingPr0Plate = false;
 
 let mousePos = {x, y};
 // if set > 0  pr0-sign will no longer spawn peepos when user moves mouse to the edge of the canvas while holding center mouseButton
@@ -124,10 +130,10 @@ function getScaledImgDimensions(img, relativeHeight, scaledParent){
   return {w, h};
 }
 
-function mouseInResetPeepoRegion(mx, my){
-  if(mx > 0 & my > 0 & mx < width & my < height){
-    if(mx > resetRect.x & mx < (resetRect.x + resetRect.w)){
-      if(my > resetRect.y & my < (resetRect.y + resetRect.h)){
+function mouseInRegion(mouse, region){
+  if(mouse.x > 0 & mouse.y > 0 & mouse.x < width & mouse.y < height){
+    if(mouse.x > region.x & mouse.x < (region.x + region.w)){
+      if(mouse.y > region.y & mouse.y < (region.y + region.h)){
         return true;
       }
     }
@@ -199,7 +205,10 @@ function setup() {
 
   // set reset peepo region
   rectWidth= 150;
-  resetRect = {x: width-rectWidth, y: 0, h: 150, w: rectWidth};
+  resetRegion = {x: width-rectWidth, y: 0, h: 150, w: rectWidth};
+
+  // set moving pr0 sign region
+  movePr0PlateRegion = {x: 0, y: 0, h:25, w: 25};
 
   // initialize pr0-sign position and direction
   x = random(0, width - scaledPlate.w - 30);
@@ -236,7 +245,11 @@ function draw() {
 
   mousePos.x = mouseX;
   mousePos.y = mouseY;
-  mouseInsideResetPeepoRegion = mouseInResetPeepoRegion(mousePos.x, mousePos.y);
+  mouseInsideResetPeepoRegion = mouseInRegion(mousePos, resetRegion);
+  mouseInsideMovePr0PlateRegion = mouseInRegion(mousePos, movePr0PlateRegion);
+  if(mouseInsideMovePr0PlateRegion === true){
+    movingPr0Plate = true;
+  }
 
   // handle reset peepos since wallpaper engine does not allow keyboard input...
   if(mouseIsPressed & mouseButton === LEFT){
@@ -288,12 +301,32 @@ function draw() {
     ricardo.hide();
   }
 
-  // handle user moving pr0-sign with out of boundary checks
-  if(mouseIsPressed & mouseButton === CENTER){
-    x = mousePos.x > width - scaledPlate.w ? width - scaledPlate.w  : mousePos.x < borderThreshold ? borderThreshold : mousePos.x;
-    y = mousePos.y > height - scaledPlate.h ? height - scaledPlate.h : mousePos.y < borderThreshold ? borderThreshold : mousePos.y;
+  // handle user moving pr0-sign with boundary checks
+  // (movingPr0Plate & !mouseIsPressed) <- implemented because of Wallpaper Engine restrictions to mouse input (does not allow to bubble up mouseButton)
+  if((mouseIsPressed & mouseButton === RIGHT) || (movingPr0Plate & !mouseIsPressed)){
+    if(mousePos.x > width - scaledPlate.w/2 - borderThreshold){
+      x = width - scaledPlate.w - borderThreshold;
+    }
+    else if (mousePos.x < scaledPlate.w/2 + borderThreshold){
+      x = borderThreshold;
+    }
+    else{
+      x = mousePos.x - scaledPlate.w/2;
+    }
+    if(mousePos.y > height - scaledPlate.h/2 - borderThreshold){
+      y = height - scaledPlate.h - borderThreshold;
+    }
+    else if (mousePos.y < scaledPlate.h/2 + borderThreshold){
+      y = borderThreshold;
+    }
+    else{
+      y = mousePos.y - scaledPlate.h/2;
+    }
     xspeed = speed * getRandomSign();
     yspeed = speed * getRandomSign();
+  }
+  else if(movingPr0Plate & mouseIsPressed){
+    movingPr0Plate = false;
   }
 
   // move bouncing objects
