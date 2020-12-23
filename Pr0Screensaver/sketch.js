@@ -4,27 +4,25 @@ let y;
 
 let xspeed;
 let yspeed;
-
+let gravity;
 
 let hue;
 let clr;
 
 let gifs = [];
-
 const relativeGif = {x: 0.53, y: 0.64, h: 0.28}
 
-const pr0plateHeight = 2000; // hardcoded, sucks but fuck p5 async loading mess
+const pr0plateHeight = 2000; // hardcoded, sucks but fuck p5 async loading mess. Maybe possible to get by using pr0Plate.elt.h ?
 const pr0plateWidth = 2000;
 
 const scaleFac = 0.125;
-const scaledPlate = {h:  Math.floor(pr0plateHeight * scaleFac), w:  Math.floor(pr0plateWidth * scaleFac)}
-// const scaledParentHeight = Math.floor(pr0plateHeight * scaleFac);
-// const scaledParentWidth =  Math.floor(pr0plateWidth * scaleFac);
-
+const scaledPlate = {h:  Math.floor(pr0plateHeight * scaleFac), w:  Math.floor(pr0plateWidth * scaleFac)};
 const plateAlpha = 1.0;
-let richtigesGrau = "#161618"
-let colorRotation = ["#ee4d2e", "#1db992", "#bfbc06", "#008fff", "#ff0082",]
 
+let richtigesGrau = "#161618"
+let colorRotation = ["#ee4d2e", "#1db992", "#bfbc06", "#008fff", "#ff0082"];
+
+let ricardoNope = 0;
 let dbPos = {x, y};
 let tempdbPos = {x, y};
 const dbScale = 0.015;
@@ -32,20 +30,22 @@ const dbScale = 0.015;
 let snow = [];
 let wichtel = [];
 let badges = [];
-let gravity;
 
 let gifIndex;
 const pepeGifCount = 46;
 const badgeFileCount = 32;
+
 const snowFlakesOnScreenCount = 113;
 const badgesOnScreenCount = 32;
 const wichtelOnScreenCount = 12;
+
 let snowFlakeTexture;
 let badgeTextures = [];
 let wichtelTexture;
 
 // speed of the moving pr0 logo
 const speed = 1.5;
+
 let resetPeepoTimer = null;
 let resetPeepoTimerIsRunning = false;
 const resetPeepoCountdownStart = 10;
@@ -54,21 +54,10 @@ let mouseInsideResetPeepoRegion = false;
 let resetRect = {x: 0, y: 0, h: 0, w: 0};
 
 let mousePos = {x, y};
-let dragMousePosBadges = {x, y};
-let dragMousePosBoxes = {x, y};
+// if set > 0  pr0-sign will no longer spawn peepos when user moves mouse to the edge of the canvas while holding center mouseButton
 const borderThreshold = 0;
 
-function mouseInResetPeepoRegion(mx, my){
-  if(mx > 0 & my > 0 & mx < width & my < height){
-    if(mx > resetRect.x & mx < (resetRect.x + resetRect.w)){
-      if(my > resetRect.y & my < (resetRect.y + resetRect.h)){
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
+//#region non-p5 functions
 function pickColor() {
   hue = random(0, 360);
 }
@@ -92,6 +81,13 @@ function onWallHit(){
   gifIndex++;
 }
 
+function startResetPeepoTimer(){
+  if(resetPeepoTimer !== null || resetPeepoTimerIsRunning === true) return;
+  resetPeepoCountdown = resetPeepoCountdownStart;
+  resetPeepoTimerIsRunning = true;
+  resetPeepoTimer = setInterval(resetPeepoTick, 1000);
+}
+
 function resetPeepoTick(){
   if(resetPeepoCountdown > 0){
     resetPeepoCountdown--;
@@ -104,13 +100,6 @@ function resetPeepoTick(){
     resetPeepoTimer = null;
     sadge.show();
   }
-}
-
-function startResetPeepoTimer(){
-  if(resetPeepoTimer !== null || resetPeepoTimerIsRunning === true) return;
-  resetPeepoCountdown = resetPeepoCountdownStart;
-  resetPeepoTimerIsRunning = true;
-  resetPeepoTimer = setInterval(resetPeepoTick, 1000);
 }
 
 function stopResetPeepoTimer(){
@@ -132,8 +121,20 @@ function getScaledImgDimensions(img, relativeHeight, scaledParent){
   if(relativeWidth > 0.28){
     w = 0.28 * scaledParent.w;
   }
-  return { w, h };
+  return {w, h};
 }
+
+function mouseInResetPeepoRegion(mx, my){
+  if(mx > 0 & my > 0 & mx < width & my < height){
+    if(mx > resetRect.x & mx < (resetRect.x + resetRect.w)){
+      if(my > resetRect.y & my < (resetRect.y + resetRect.h)){
+        return true;
+      }
+    }
+  }
+  return false;
+}
+//#endregion
 
 function preload() {
   monkaS = createImg('assets/gifs/monkaS.gif', 'sadge :(', 'anonymous', img => {
@@ -198,7 +199,7 @@ function setup() {
 
   // set reset peepo region
   rectWidth= 150;
-  resetRect = {x: width-rectWidth, y: 0, h: 100, w: rectWidth};
+  resetRect = {x: width-rectWidth, y: 0, h: 150, w: rectWidth};
 
   // initialize pr0-sign position and direction
   x = random(0, width - scaledPlate.w - 30);
@@ -223,17 +224,15 @@ function setup() {
     let y = random(height);
     badges.push(new Snowflake(x, y, random(badgeTextures)));
   }
-  // randomize 
+  // randomize which pepe to begin with
   gifIndex = getRandomInt(pepeGifCount-1);
 }
 
-let nope = 0;
-
 function draw() {
   background(richtigesGrau);
-  // display framerate
   fill(40);
-  text(int(getFrameRate()), width - 20, 15); 
+  // display framerate
+  // text(int(getFrameRate()), width - 20, 15); 
 
   mousePos.x = mouseX;
   mousePos.y = mouseY;
@@ -271,19 +270,19 @@ function draw() {
     gifIndex = 0;
   }
 
-   // handle if mouse gets too close to db.. 
-   // TODO: use timer instead of counting frames.
+   // handle if mouse gets too close to db
+   // TODO: use timer instead of counting frames...
   let dbMouseDist = sqrt(pow((dbPos.x - mousePos.x),2) + pow((dbPos.y - mousePos.y), 2))
   if(dbMouseDist < db.elt.height + 12){
     tempdbPos.x = dbPos.x;
     tempdbPos.y = dbPos.y;
-    nope = 210;
+    ricardoNope = 210;
     randomDbPos();
   }
-  if(nope > 0){
+  if(ricardoNope > 0){
     ricardo.position(tempdbPos.x, tempdbPos.y);
     ricardo.show();
-    nope--;
+    ricardoNope--;
   }
   else{
     ricardo.hide();
@@ -297,9 +296,8 @@ function draw() {
     yspeed = speed * getRandomSign();
   }
 
-  // move all objects
+  // move bouncing objects
   db.position(dbPos.x, dbPos.y);
-  merryXmas.position(merryXmas.position.x, merryXmas.position.y);
   pr0Plate.position(x,y);
   gifs[gifIndex].show();
   gifs[gifIndex].position(x + relativeGif.x * pr0Plate.width, y + relativeGif.y * pr0Plate.height - gifs[gifIndex].elt.height);
@@ -344,14 +342,14 @@ function draw() {
       if(mouseButton === LEFT){
         // let mouseForce = createVector(mousePos.x - badge.pos.x, mousePos.y - badge.pos.y);
         let mouseForce = createVector(mousePos.x - badge.pos.x, mousePos.y - badge.pos.y);
-        badge.applyForce(mouseForce);
+        badge.applyForce(mouseForce, mousePos);
       }
     }
     else{
       badge.applyForce(gravity);
     }
-    badge.update(mouseIsPressed, random(badgeTextures));
-    badge.render(mouseIsPressed);
+    badge.update(mouseIsPressed, mouseButton, mousePos, random(badgeTextures));
+    badge.render();
   }
 
   for (box of wichtel) {
@@ -360,13 +358,13 @@ function draw() {
       if(mouseButton === LEFT){
         // let mouseForce = createVector(mousePos.x - box.pos.x, mousePos.y - box.pos.y);
         let mouseForce = createVector(mousePos.x - box.pos.x, mousePos.y - box.pos.y);
-        box.applyForce(mouseForce);
+        box.applyForce(mouseForce,);
       }
     }
     else{
       box.applyForce(gravity);
     }
-    box.update(mouseIsPressed);
-    box.render(mouseIsPressed);
+    box.update(mouseIsPressed, mouseButton, mousePos);
+    box.render();
   }
 }
