@@ -841,6 +841,15 @@ function draw() {
 	// Wall behavior handling
 	switch (wallBehavior) {
 		case WallBehaviorEnum.none: {
+			for(let i = particles.length - 1; i >= 0; i--){
+				if(particles[i].position.x < -1 * particles[i].radius || particles[i].position.x > canvasWidth + particles[i].radius
+					|| particles[i].position.y < -1 * particles[i].radius || particles[i].position.y > canvasHeight + particles[i].radius){
+					helpers.RemoveItemAtIndex(particles, i);
+					particleCount--;
+					particleCountSlider.value = particleCount;
+					particleCountValue.innerHTML = particleCount;
+				}
+			}
 			break;
 		}
 		case WallBehaviorEnum.infinite: {

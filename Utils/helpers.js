@@ -224,4 +224,8 @@ export function GetMousePos(canvas, evt) {
 	var rect = canvas.getBoundingClientRect();
 	return new Vector2D(evt.clientX - rect.left, evt.clientY - rect.top);
 }
+
+export function RemoveItemAtIndex(myArr, index){
+	myArr.splice(index, 1);
+}
 // #endregion
