@@ -1,5 +1,0 @@
-project based on:
-https://thecodingtrain.com/CodingChallenges/088-snowfall.html
-https://thecodingtrain.com/CodingChallenges/131-bouncing-dvd-logo.html
-https://betterttv.com/emotes/top 
-https://holzmaster.github.io/userscripts/eckdaten/
